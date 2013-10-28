@@ -7,9 +7,7 @@ ERL_FILE
       PsiElement(var)('DICT')
     PsiElement(,)(',')
     ERL_MACROS_BODY
-      ERL_MAX_EXPRESSION
-        ERL_Q_ATOM
-          PsiElement(atom)('dict')
+      PsiElement(atom)('dict')
     PsiElement())(')')
     PsiElement(.)('.')
   ERL_MACROS_DEFINITION
@@ -20,9 +18,7 @@ ERL_FILE
       PsiElement(var)('SET')
     PsiElement(,)(',')
     ERL_MACROS_BODY
-      ERL_MAX_EXPRESSION
-        ERL_Q_ATOM
-          PsiElement(atom)('set')
+      PsiElement(atom)('set')
     PsiElement())(')')
     PsiElement(.)('.')
   ERL_RECORD_DEFINITION

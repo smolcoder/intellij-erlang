@@ -664,24 +664,14 @@ ERL_FILE
       PsiElement())(')')
     PsiElement(,)(',')
     ERL_MACROS_BODY
-      ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
-        ERL_MODULE_REF
-          ERL_Q_ATOM
-            PsiElement(atom)('io')
-        PsiElement(:)(':')
-        ERL_FUNCTION_CALL_EXPRESSION
-          ERL_Q_ATOM
-            PsiElement(atom)('format')
-          ERL_ARGUMENT_LIST
-            PsiElement(()('(')
-            ERL_MAX_EXPRESSION
-              ERL_Q_VAR
-                PsiElement(var)('S_')
-            PsiElement(,)(',')
-            ERL_MAX_EXPRESSION
-              ERL_Q_VAR
-                PsiElement(var)('L_')
-            PsiElement())(')')
+      PsiElement(atom)('io')
+      PsiElement(:)(':')
+      PsiElement(atom)('format')
+      PsiElement(()('(')
+      PsiElement(var)('S_')
+      PsiElement(,)(',')
+      PsiElement(var)('L_')
+      PsiElement())(')')
     PsiElement())(')')
     PsiElement(.)('.')
   ERL_ATTRIBUTE
@@ -710,9 +700,7 @@ ERL_FILE
       PsiElement())(')')
     PsiElement(,)(',')
     ERL_MACROS_BODY
-      ERL_MAX_EXPRESSION
-        ERL_Q_ATOM
-          PsiElement(atom)('ok')
+      PsiElement(atom)('ok')
     PsiElement())(')')
     PsiElement(.)('.')
   ERL_ATTRIBUTE
@@ -732,9 +720,7 @@ ERL_FILE
       PsiElement(atom)('no_arg')
     PsiElement(,)(',')
     ERL_MACROS_BODY
-      ERL_MAX_EXPRESSION
-        ERL_Q_ATOM
-          PsiElement(atom)('no_arg')
+      PsiElement(atom)('no_arg')
     PsiElement())(')')
     PsiElement(.)('.')
   ERL_MACROS_DEFINITION
@@ -745,8 +731,7 @@ ERL_FILE
       PsiElement(var)('TYPE_LIMIT')
     PsiElement(,)(',')
     ERL_MACROS_BODY
-      ERL_MAX_EXPRESSION
-        PsiElement(integer)('3')
+      PsiElement(integer)('3')
     PsiElement())(')')
     PsiElement(.)('.')
   ERL_RECORD_DEFINITION

@@ -3169,53 +3169,13 @@ public class ErlangParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // expression ((',' | ';' | '->') expression)*
+  // <<consumeMacroBody>>
   public static boolean macros_body(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "macros_body")) return false;
     boolean result_ = false;
-    boolean pinned_ = false;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<macros body>");
-    result_ = expression(builder_, level_ + 1, -1);
-    pinned_ = result_; // pin = 1
-    result_ = result_ && macros_body_1(builder_, level_ + 1);
-    exit_section_(builder_, level_, marker_, ERL_MACROS_BODY, result_, pinned_, null);
-    return result_ || pinned_;
-  }
-
-  // ((',' | ';' | '->') expression)*
-  private static boolean macros_body_1(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "macros_body_1")) return false;
-    int pos_ = current_position_(builder_);
-    while (true) {
-      if (!macros_body_1_0(builder_, level_ + 1)) break;
-      if (!empty_element_parsed_guard_(builder_, "macros_body_1", pos_)) break;
-      pos_ = current_position_(builder_);
-    }
-    return true;
-  }
-
-  // (',' | ';' | '->') expression
-  private static boolean macros_body_1_0(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "macros_body_1_0")) return false;
-    boolean result_ = false;
-    boolean pinned_ = false;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, null);
-    result_ = macros_body_1_0_0(builder_, level_ + 1);
-    pinned_ = result_; // pin = 1
-    result_ = result_ && expression(builder_, level_ + 1, -1);
-    exit_section_(builder_, level_, marker_, null, result_, pinned_, null);
-    return result_ || pinned_;
-  }
-
-  // ',' | ';' | '->'
-  private static boolean macros_body_1_0_0(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "macros_body_1_0_0")) return false;
-    boolean result_ = false;
-    Marker marker_ = enter_section_(builder_);
-    result_ = consumeToken(builder_, ERL_COMMA);
-    if (!result_) result_ = consumeToken(builder_, ERL_SEMI);
-    if (!result_) result_ = consumeToken(builder_, ERL_ARROW);
-    exit_section_(builder_, marker_, null, result_);
+    result_ = consumeMacroBody(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, ERL_MACROS_BODY, result_, false, null);
     return result_;
   }
 
