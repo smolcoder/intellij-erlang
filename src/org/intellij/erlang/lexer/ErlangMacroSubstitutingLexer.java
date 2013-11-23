@@ -19,7 +19,9 @@ package org.intellij.erlang.lexer;
 import com.intellij.lexer.Lexer;
 import com.intellij.lexer.LexerPosition;
 import com.intellij.lexer.LookAheadLexer;
+import com.intellij.openapi.util.Condition;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.Stack;
 import org.intellij.erlang.ErlangParserDefinition;
@@ -270,7 +272,8 @@ public class ErlangMacroSubstitutingLexer extends LookAheadLexer {
               else if (tokenType == ErlangTypes.ERL_PAR_LEFT) {
                 myOpenParenthesesCount++;
               }
-              myMacroCallBuilder.appendMacroArgument(tokenText);
+              assert tokenType != null;
+              myMacroCallBuilder.appendMacroArgument(tokenText, tokenType);
             }
             break;
           }
@@ -281,6 +284,10 @@ public class ErlangMacroSubstitutingLexer extends LookAheadLexer {
 
     private void processMacroCall() {
       MacroCall macroCall = myMacroCallBuilder.build();
+      if (macroCall == null) {
+        //TODO report ill-formed macro call
+        return;
+      }
       // this code handles calls like ?MACRO(arg1, arg2) where arguments may not be a MACRO's arguments
       ErlangMacro macro = null;
       List<String> macroArguments = macroCall.getPossibleArgumentsList();
@@ -352,7 +359,8 @@ public class ErlangMacroSubstitutingLexer extends LookAheadLexer {
   private static final class MacroCallBuilder {
     private String myMacroName;
     private StringBuilder myMacroArgumentBuilder = new StringBuilder();
-    private List<String> myArguments;
+    private boolean myMacroArgumentHasNonWhitespaceTokens;
+    private List<MacroCallArgument> myArguments;
     private boolean myCanHaveArguments;
 
     public MacroCallBuilder() {
@@ -363,14 +371,18 @@ public class ErlangMacroSubstitutingLexer extends LookAheadLexer {
       myMacroName = name;
     }
 
-    public void appendMacroArgument(String macroArgumentPart) {
-      myMacroArgumentBuilder.append(macroArgumentPart);
+    public void appendMacroArgument(String tokenText, IElementType tokenType) {
+      if (!ErlangParserDefinition.COMMENTS.contains(tokenType) &&
+        !ErlangParserDefinition.WS.contains(tokenType)) {
+        myMacroArgumentHasNonWhitespaceTokens = true;
+      }
+      myMacroArgumentBuilder.append(tokenText);
     }
 
     public void completeMacroArgument() {
       if (myMacroArgumentBuilder.length() != 0) {
-        myArguments.add(myMacroArgumentBuilder.toString());
-        myMacroArgumentBuilder.setLength(0);
+        myArguments.add(new MacroCallArgument(myMacroArgumentBuilder.toString(), myMacroArgumentHasNonWhitespaceTokens));
+        resetMacroArgumentBuilder();
       }
     }
 
@@ -380,15 +392,64 @@ public class ErlangMacroSubstitutingLexer extends LookAheadLexer {
 
     public void reset() {
       myMacroName = null;
-      myMacroArgumentBuilder.setLength(0);
+      resetMacroArgumentBuilder();
       myArguments = ContainerUtil.newArrayList();
       myCanHaveArguments = false;
     }
 
+    @Nullable
     public MacroCall build() {
-      MacroCall result = new MacroCall(myMacroName, myCanHaveArguments ? myArguments : null);
+      String macroName = myMacroName;
+      List<String> argumentsList = null;
+      if (myCanHaveArguments) {
+        if (myArguments.size() == 1) {
+          MacroCallArgument argument = myArguments.get(0);
+          argumentsList = ContainerUtil.createMaybeSingletonList(argument.hasNonWhitespaceTokens() ? argument.getText() : null);
+        }
+        else {
+          MacroCallArgument whitespaceOnlyArgument = ContainerUtil.find(myArguments, new Condition<MacroCallArgument>() {
+            @Override
+            public boolean value(MacroCallArgument macroCallArgument) {
+              return !macroCallArgument.hasNonWhitespaceTokens();
+            }
+          });
+          if (whitespaceOnlyArgument != null) {
+            reset();
+            return null;
+          }
+          argumentsList = ContainerUtil.map(myArguments, new Function<MacroCallArgument, String>() {
+            @Override
+            public String fun(MacroCallArgument macroCallArgument) {
+              return macroCallArgument.getText();
+            }
+          });
+        }
+      }
       reset();
-      return result;
+      return new MacroCall(macroName, argumentsList);
+    }
+
+    private void resetMacroArgumentBuilder() {
+      myMacroArgumentBuilder.setLength(0);
+      myMacroArgumentHasNonWhitespaceTokens = false;
+    }
+  }
+
+  private static final class MacroCallArgument {
+    private final String myText;
+    private final boolean myHasNonWhitespaceTokens;
+
+    private MacroCallArgument(String text, boolean hasNonWhitespaceTokens) {
+      myText = text;
+      myHasNonWhitespaceTokens = hasNonWhitespaceTokens;
+    }
+
+    public String getText() {
+      return myText;
+    }
+
+    public boolean hasNonWhitespaceTokens() {
+      return myHasNonWhitespaceTokens;
     }
   }
 
