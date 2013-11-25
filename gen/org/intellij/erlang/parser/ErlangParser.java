@@ -3180,7 +3180,7 @@ public class ErlangParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // &('?') generic_function_call_expression
+  // &('?') macros argument_list &not_function_definition
   public static boolean macros_call(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "macros_call")) return false;
     boolean result_ = false;
@@ -3188,7 +3188,9 @@ public class ErlangParser implements PsiParser {
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<macros call>");
     result_ = macros_call_0(builder_, level_ + 1);
     pinned_ = result_; // pin = 1
-    result_ = result_ && generic_function_call_expression(builder_, level_ + 1);
+    result_ = result_ && report_error_(builder_, macros(builder_, level_ + 1));
+    result_ = pinned_ && report_error_(builder_, argument_list(builder_, level_ + 1)) && result_;
+    result_ = result_ && macros_call_3(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, ERL_MACROS_CALL, result_, pinned_, macros_call_recover_parser_);
     return result_ || pinned_;
   }
@@ -3210,6 +3212,16 @@ public class ErlangParser implements PsiParser {
     Marker marker_ = enter_section_(builder_);
     result_ = consumeToken(builder_, ERL_QMARK);
     exit_section_(builder_, marker_, null, result_);
+    return result_;
+  }
+
+  // &not_function_definition
+  private static boolean macros_call_3(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "macros_call_3")) return false;
+    boolean result_ = false;
+    Marker marker_ = enter_section_(builder_, level_, _AND_, null);
+    result_ = not_function_definition(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, null, result_, false, null);
     return result_;
   }
 
