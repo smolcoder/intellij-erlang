@@ -31,9 +31,13 @@ public class ErlangFunctionFixesTest extends ErlangQuickFixTestBase {
     return "testData/quickfixes/export/";
   }
 
-  public void testEmpty()      throws Throwable  { doTest("Export function"); }
-  public void testWithout()    throws Throwable  { doTest("Export function"); }
-  public void testCommon()     throws Throwable  { doTest("Export function"); }
-  public void testDelete()     throws Throwable  { doTest("Remove function"); }
-  public void testDeleteSpec() throws Throwable  { doTest("Remove function"); }
+  public void testEmpty()               throws Throwable { doTest("Export function"); }
+  public void testWithout()             throws Throwable { doTest("Export function"); }
+  public void testCommon()              throws Throwable { doTest("Export function"); }
+  public void testDelete()              throws Throwable { doTest("Remove function"); }
+  public void testDeleteSpec()          throws Throwable { doTest("Remove function"); }
+  public void testMacroWholeFunDelete() throws Throwable { doTest("Remove function"); }
+  public void testMacroWholeFunExport() throws Throwable { doTest("Export function"); }
+  public void testMacroPartFunDelete()  throws Throwable { doTest("Remove function"); }
+  public void testMacroPartFunExport()  throws Throwable { doTest("Export function"); }
 }

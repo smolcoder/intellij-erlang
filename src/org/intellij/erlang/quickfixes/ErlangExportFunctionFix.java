@@ -22,6 +22,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.intellij.erlang.inspection.ErlangMacroSubstitutionProblemDescriptor;
 import org.intellij.erlang.psi.*;
 import org.intellij.erlang.psi.impl.ErlangElementFactory;
 import org.intellij.erlang.psi.impl.ErlangPsiImplUtil;
@@ -38,7 +39,10 @@ public class ErlangExportFunctionFix extends ErlangQuickFixBase {
 
   @Override
   public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
-    ErlangFunction function = PsiTreeUtil.getParentOfType(descriptor.getPsiElement(), ErlangFunction.class);
+    PsiElement functionNameElement = descriptor instanceof ErlangMacroSubstitutionProblemDescriptor ?
+      ((ErlangMacroSubstitutionProblemDescriptor) descriptor).getRealProblemElement() :
+      descriptor.getPsiElement();
+    ErlangFunction function = PsiTreeUtil.getParentOfType(functionNameElement, ErlangFunction.class);
 
     if (function != null) {
       processFunction(project, function);
