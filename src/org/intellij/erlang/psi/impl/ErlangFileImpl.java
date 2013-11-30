@@ -106,7 +106,7 @@ public class ErlangFileImpl extends PsiFileBase implements ErlangFile, PsiNameId
   private CachedValue<MultiMap<String, ErlangFunction>> myFunctionsMap;
   private CachedValue<Map<String, ErlangRecordDefinition>> myRecordsMap;
   private CachedValue<List<ErlangMacrosDefinition>> myMacrosValue;
-  private CachedValue<Map<String, ErlangMacrosDefinition>> myMacrosesMap;
+  private CachedValue<MultiMap<String, ErlangMacrosDefinition>> myMacrosesMap;
   private CachedValue<List<ErlangTypeDefinition>> myTypeValue;
   private CachedValue<Map<String, ErlangTypeDefinition>> myTypeMap;
   private CachedValue<Map<String, ErlangCallbackSpec>> myCallbackMap;
@@ -481,29 +481,41 @@ public class ErlangFileImpl extends PsiFileBase implements ErlangFile, PsiNameId
   }
 
   @Override
-  public ErlangMacrosDefinition getMacros(@NotNull String name) {
+  public ErlangMacrosDefinition getMacros(@NotNull String name, int arity) {
+    initMacrosMap();
+    // todo: cleanup
+    MultiMap<String, ErlangMacrosDefinition> value = myMacrosesMap.getValue();
+    ErlangMacrosDefinition byName = getMacroFromMap(value, name, arity);
+    ErlangMacrosDefinition byUnquote = byName == null ? getMacroFromMap(value, StringUtil.unquoteString(name), arity) : byName;
+    return byUnquote == null ? getMacroFromMap(value, "'" + name + "'", arity) : byUnquote;
+  }
+
+  private void initMacrosMap() {
     if (myMacrosesMap == null) {
-      myMacrosesMap = CachedValuesManager.getManager(getProject()).createCachedValue(new CachedValueProvider<Map<String, ErlangMacrosDefinition>>() {
+      myMacrosesMap = CachedValuesManager.getManager(getProject()).createCachedValue(new CachedValueProvider<MultiMap<String, ErlangMacrosDefinition>>() {
         @Override
-        public Result<Map<String, ErlangMacrosDefinition>> compute() {
-          Map<String, ErlangMacrosDefinition> map = new THashMap<String, ErlangMacrosDefinition>();
+        public Result<MultiMap<String, ErlangMacrosDefinition>> compute() {
+          MultiMap<String, ErlangMacrosDefinition> map = new MultiMap<String, ErlangMacrosDefinition>();
           for (ErlangMacrosDefinition macros : getMacroses()) {
             ErlangMacrosName mName = macros.getMacrosName();
             if (mName == null) continue;
-            String macrosName = mName.getText();
-            if (!map.containsKey(macrosName)) {
-              map.put(macrosName, macros);
-            }
+            map.putValue(mName.getText(), macros);
           }
           return Result.create(map, ErlangFileImpl.this);
         }
       }, false);
     }
-    // todo: cleanup
-    Map<String, ErlangMacrosDefinition> value = myMacrosesMap.getValue();
-    ErlangMacrosDefinition byName = value.get(name);
-    ErlangMacrosDefinition byUnquote = byName == null ? value.get(StringUtil.unquoteString(name)) : byName;
-    return byUnquote == null ? value.get("'" + name + "'") : byUnquote;
+  }
+
+  @Nullable
+  private static ErlangMacrosDefinition getMacroFromMap(MultiMap<String, ErlangMacrosDefinition> map, @NotNull String name, final int arity) {
+    Collection<ErlangMacrosDefinition> erlangMacrosDefinitions = map.get(name);
+    return ContainerUtil.getFirstItem(ContainerUtil.filter(erlangMacrosDefinitions, new Condition<ErlangMacrosDefinition>() {
+      @Override
+      public boolean value(ErlangMacrosDefinition macrosDefinition) {
+        return macrosDefinition.getArity() == arity;
+      }
+    }));
   }
 
   private List<ErlangRecordDefinition> calcRecords() {

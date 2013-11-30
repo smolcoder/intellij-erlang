@@ -88,4 +88,8 @@ public class ErlangMacrosDefinitionImpl extends ErlangStubbedPsiElementBase<Erla
     return ErlangPsiImplUtil.getTextOffset(this);
   }
 
+  public int getArity() {
+    return ErlangPsiImplUtil.getArity(this);
+  }
+
 }

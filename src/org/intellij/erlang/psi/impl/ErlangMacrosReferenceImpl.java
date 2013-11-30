@@ -30,10 +30,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class ErlangMacrosReferenceImpl<T extends ErlangMacrosName> extends PsiReferenceBase<T> {
   protected final String myReferenceName;
+  protected final int myArity;
 
-  public ErlangMacrosReferenceImpl(T element, TextRange range, String name) {
+  public ErlangMacrosReferenceImpl(T element, TextRange range, String name, int arity) {
     super(element, range);
     myReferenceName = name;
+    myArity = arity;
   }
 
   @Override
@@ -46,11 +48,11 @@ public class ErlangMacrosReferenceImpl<T extends ErlangMacrosName> extends PsiRe
   public PsiElement resolve() {
     PsiFile containingFile = myElement.getContainingFile();
     if (containingFile instanceof ErlangFile) {
-      ErlangMacrosDefinition macros = ((ErlangFile) containingFile).getMacros(myReferenceName);
+      ErlangMacrosDefinition macros = ((ErlangFile) containingFile).getMacros(myReferenceName, myArity);
       if (macros != null) {
         return macros;
       }
-      return ContainerUtil.getFirstItem(ErlangPsiImplUtil.getErlangMacrosesFromIncludes((ErlangFile) containingFile, false, myReferenceName));
+      return ContainerUtil.getFirstItem(ErlangPsiImplUtil.getErlangMacrosesFromIncludes((ErlangFile) containingFile, false, myReferenceName, myArity));
     }
     return null;
   }
