@@ -19,11 +19,11 @@ ERL_FILE
         PsiElement())(')')
       ERL_CLAUSE_BODY
         PsiElement(->)('->')
+        ERL_MACROS
+          PsiElement(?)('?')
+          ERL_MACROS_NAME
+            PsiElement(var)('MACRO')
         ERL_MAX_EXPRESSION
           ERL_Q_ATOM
-            ERL_MACROS
-              PsiElement(?)('?')
-              ERL_MACROS_NAME
-                PsiElement(var)('MACRO')
-          ForeignLeaf(atom: ok)('ok')
+            ForeignLeaf(atom: ok)('ok')
     PsiElement(.)('.')
