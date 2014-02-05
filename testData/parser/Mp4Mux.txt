@@ -630,44 +630,96 @@ ERL_FILE
                                   PsiElement(()('(')
                                   PsiElement())(')')
                           PsiElement(,)(',')
-                          ERL_FUNCTION_CALL_EXPRESSION
-                            ERL_Q_ATOM
-                              ERL_MACROS
-                                PsiElement(?)('?')
-                                ERL_MACROS_NAME
-                                  PsiElement(var)('D')
-                            ERL_ARGUMENT_LIST
-                              PsiElement(()('(')
-                              ERL_TUPLE_EXPRESSION
-                                PsiElement({)('{')
-                                ERL_MAX_EXPRESSION
-                                  ERL_Q_ATOM
-                                    PsiElement(atom)('append_track')
-                                PsiElement(,)(',')
-                                ERL_MAX_EXPRESSION
-                                  ERL_Q_VAR
-                                    PsiElement(var)('TrackId')
-                                PsiElement(,)(',')
-                                ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
-                                  ERL_MODULE_REF
+                          ERL_MACROS
+                            PsiElement(?)('?')
+                            ERL_MACROS_NAME
+                              PsiElement(var)('D')
+                            ERL_MACRO_CALL_ARGUMENT_LIST
+                              ERL_ARGUMENT_LIST
+                                PsiElement(()('(')
+                                ERL_TUPLE_EXPRESSION
+                                  PsiElement({)('{')
+                                  ERL_MAX_EXPRESSION
                                     ERL_Q_ATOM
-                                      PsiElement(atom)('timer')
-                                  PsiElement(:)(':')
-                                  ERL_FUNCTION_CALL_EXPRESSION
+                                      PsiElement(atom)('append_track')
+                                  PsiElement(,)(',')
+                                  ERL_MAX_EXPRESSION
+                                    ERL_Q_VAR
+                                      PsiElement(var)('TrackId')
+                                  PsiElement(,)(',')
+                                  ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                                    ERL_MODULE_REF
+                                      ERL_Q_ATOM
+                                        PsiElement(atom)('timer')
+                                    PsiElement(:)(':')
+                                    ERL_FUNCTION_CALL_EXPRESSION
+                                      ERL_Q_ATOM
+                                        PsiElement(atom)('now_diff')
+                                      ERL_ARGUMENT_LIST
+                                        PsiElement(()('(')
+                                        ERL_MAX_EXPRESSION
+                                          ERL_Q_VAR
+                                            PsiElement(var)('TT2')
+                                        PsiElement(,)(',')
+                                        ERL_MAX_EXPRESSION
+                                          ERL_Q_VAR
+                                            PsiElement(var)('TT1')
+                                        PsiElement())(')')
+                                  PsiElement(})('}')
+                                PsiElement())(')')
+                          ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                            ERL_MODULE_REF
+                              ERL_Q_ATOM
+                                ForeignLeaf(atom: io)('io')
+                            ForeignLeaf(:: :)(':')
+                            ERL_FUNCTION_CALL_EXPRESSION
+                              ERL_Q_ATOM
+                                ForeignLeaf(atom: format)('format')
+                              ERL_ARGUMENT_LIST
+                                ForeignLeaf((: ()('(')
+                                ERL_STRING_LITERAL
+                                  ForeignLeaf(string: "mp4mux:~p ~p~n")('"mp4mux:~p ~p~n"')
+                                ForeignLeaf(,: ,)(',')
+                                ERL_LIST_EXPRESSION
+                                  ForeignLeaf([: [)('[')
+                                  ERL_MAX_EXPRESSION
                                     ERL_Q_ATOM
-                                      PsiElement(atom)('now_diff')
-                                    ERL_ARGUMENT_LIST
-                                      PsiElement(()('(')
-                                      ERL_MAX_EXPRESSION
-                                        ERL_Q_VAR
-                                          PsiElement(var)('TT2')
-                                      PsiElement(,)(',')
-                                      ERL_MAX_EXPRESSION
-                                        ERL_Q_VAR
-                                          PsiElement(var)('TT1')
-                                      PsiElement())(')')
-                                PsiElement(})('}')
-                              PsiElement())(')')
+                                      ERL_MACROS
+                                        ForeignLeaf(?: ?)('?')
+                                        ERL_MACROS_NAME
+                                          ForeignLeaf(var: LINE)('LINE')
+                                  ForeignLeaf(,: ,)(',')
+                                  ERL_TUPLE_EXPRESSION
+                                    ForeignLeaf({: {)('{')
+                                    ERL_MAX_EXPRESSION
+                                      ERL_Q_ATOM
+                                        ForeignLeaf(atom: append_track)('append_track')
+                                    ForeignLeaf(,: ,)(',')
+                                    ERL_MAX_EXPRESSION
+                                      ERL_Q_VAR
+                                        ForeignLeaf(var: TrackId)('TrackId')
+                                    ForeignLeaf(,: ,)(',')
+                                    ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                                      ERL_MODULE_REF
+                                        ERL_Q_ATOM
+                                          ForeignLeaf(atom: timer)('timer')
+                                      ForeignLeaf(:: :)(':')
+                                      ERL_FUNCTION_CALL_EXPRESSION
+                                        ERL_Q_ATOM
+                                          ForeignLeaf(atom: now_diff)('now_diff')
+                                        ERL_ARGUMENT_LIST
+                                          ForeignLeaf((: ()('(')
+                                          ERL_MAX_EXPRESSION
+                                            ERL_Q_VAR
+                                              ForeignLeaf(var: TT2)('TT2')
+                                          ForeignLeaf(,: ,)(',')
+                                          ERL_MAX_EXPRESSION
+                                            ERL_Q_VAR
+                                              ForeignLeaf(var: TT1)('TT1')
+                                          ForeignLeaf(): ))(')')
+                                    ForeignLeaf(}: })('}')
+                                  ForeignLeaf(]: ])(']')
+                                ForeignLeaf(): ))(')')
                           PsiElement(,)(',')
                           ERL_RECORD_EXPRESSION
                             ERL_MAX_EXPRESSION
@@ -941,40 +993,88 @@ ERL_FILE
                 PsiElement(()('(')
                 PsiElement())(')')
         PsiElement(,)(',')
-        ERL_FUNCTION_CALL_EXPRESSION
-          ERL_Q_ATOM
-            ERL_MACROS
-              PsiElement(?)('?')
-              ERL_MACROS_NAME
-                PsiElement(var)('D')
-          ERL_ARGUMENT_LIST
-            PsiElement(()('(')
-            ERL_TUPLE_EXPRESSION
-              PsiElement({)('{')
-              ERL_MAX_EXPRESSION
-                ERL_Q_ATOM
-                  PsiElement(atom)('flush_header')
-              PsiElement(,)(',')
-              ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
-                ERL_MODULE_REF
+        ERL_MACROS
+          PsiElement(?)('?')
+          ERL_MACROS_NAME
+            PsiElement(var)('D')
+          ERL_MACRO_CALL_ARGUMENT_LIST
+            ERL_ARGUMENT_LIST
+              PsiElement(()('(')
+              ERL_TUPLE_EXPRESSION
+                PsiElement({)('{')
+                ERL_MAX_EXPRESSION
                   ERL_Q_ATOM
-                    PsiElement(atom)('timer')
-                PsiElement(:)(':')
-                ERL_FUNCTION_CALL_EXPRESSION
+                    PsiElement(atom)('flush_header')
+                PsiElement(,)(',')
+                ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                  ERL_MODULE_REF
+                    ERL_Q_ATOM
+                      PsiElement(atom)('timer')
+                  PsiElement(:)(':')
+                  ERL_FUNCTION_CALL_EXPRESSION
+                    ERL_Q_ATOM
+                      PsiElement(atom)('now_diff')
+                    ERL_ARGUMENT_LIST
+                      PsiElement(()('(')
+                      ERL_MAX_EXPRESSION
+                        ERL_Q_VAR
+                          PsiElement(var)('T2')
+                      PsiElement(,)(',')
+                      ERL_MAX_EXPRESSION
+                        ERL_Q_VAR
+                          PsiElement(var)('T1')
+                      PsiElement())(')')
+                PsiElement(})('}')
+              PsiElement())(')')
+        ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+          ERL_MODULE_REF
+            ERL_Q_ATOM
+              ForeignLeaf(atom: io)('io')
+          ForeignLeaf(:: :)(':')
+          ERL_FUNCTION_CALL_EXPRESSION
+            ERL_Q_ATOM
+              ForeignLeaf(atom: format)('format')
+            ERL_ARGUMENT_LIST
+              ForeignLeaf((: ()('(')
+              ERL_STRING_LITERAL
+                ForeignLeaf(string: "mp4mux:~p ~p~n")('"mp4mux:~p ~p~n"')
+              ForeignLeaf(,: ,)(',')
+              ERL_LIST_EXPRESSION
+                ForeignLeaf([: [)('[')
+                ERL_MAX_EXPRESSION
                   ERL_Q_ATOM
-                    PsiElement(atom)('now_diff')
-                  ERL_ARGUMENT_LIST
-                    PsiElement(()('(')
-                    ERL_MAX_EXPRESSION
-                      ERL_Q_VAR
-                        PsiElement(var)('T2')
-                    PsiElement(,)(',')
-                    ERL_MAX_EXPRESSION
-                      ERL_Q_VAR
-                        PsiElement(var)('T1')
-                    PsiElement())(')')
-              PsiElement(})('}')
-            PsiElement())(')')
+                    ERL_MACROS
+                      ForeignLeaf(?: ?)('?')
+                      ERL_MACROS_NAME
+                        ForeignLeaf(var: LINE)('LINE')
+                ForeignLeaf(,: ,)(',')
+                ERL_TUPLE_EXPRESSION
+                  ForeignLeaf({: {)('{')
+                  ERL_MAX_EXPRESSION
+                    ERL_Q_ATOM
+                      ForeignLeaf(atom: flush_header)('flush_header')
+                  ForeignLeaf(,: ,)(',')
+                  ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                    ERL_MODULE_REF
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: timer)('timer')
+                    ForeignLeaf(:: :)(':')
+                    ERL_FUNCTION_CALL_EXPRESSION
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: now_diff)('now_diff')
+                      ERL_ARGUMENT_LIST
+                        ForeignLeaf((: ()('(')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_VAR
+                            ForeignLeaf(var: T2)('T2')
+                        ForeignLeaf(,: ,)(',')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_VAR
+                            ForeignLeaf(var: T1)('T1')
+                        ForeignLeaf(): ))(')')
+                  ForeignLeaf(}: })('}')
+                ForeignLeaf(]: ])(']')
+              ForeignLeaf(): ))(')')
         PsiElement(,)(',')
         ERL_FUNCTION_CALL_EXPRESSION
           ERL_Q_ATOM
@@ -1136,73 +1236,154 @@ ERL_FILE
                 PsiElement(()('(')
                 PsiElement())(')')
         PsiElement(,)(',')
-        ERL_FUNCTION_CALL_EXPRESSION
-          ERL_Q_ATOM
-            ERL_MACROS
-              PsiElement(?)('?')
-              ERL_MACROS_NAME
-                PsiElement(var)('D')
-          ERL_ARGUMENT_LIST
-            PsiElement(()('(')
-            ERL_TUPLE_EXPRESSION
-              PsiElement({)('{')
-              ERL_MAX_EXPRESSION
-                ERL_Q_ATOM
-                  PsiElement(atom)('flush_moov')
-              PsiElement(,)(',')
+        ERL_MACROS
+          PsiElement(?)('?')
+          ERL_MACROS_NAME
+            PsiElement(var)('D')
+          ERL_MACRO_CALL_ARGUMENT_LIST
+            ERL_ARGUMENT_LIST
+              PsiElement(()('(')
               ERL_TUPLE_EXPRESSION
                 PsiElement({)('{')
                 ERL_MAX_EXPRESSION
                   ERL_Q_ATOM
-                    PsiElement(atom)('prepare_tracks')
+                    PsiElement(atom)('flush_moov')
                 PsiElement(,)(',')
-                ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
-                  ERL_MODULE_REF
+                ERL_TUPLE_EXPRESSION
+                  PsiElement({)('{')
+                  ERL_MAX_EXPRESSION
                     ERL_Q_ATOM
-                      PsiElement(atom)('timer')
-                  PsiElement(:)(':')
-                  ERL_FUNCTION_CALL_EXPRESSION
+                      PsiElement(atom)('prepare_tracks')
+                  PsiElement(,)(',')
+                  ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                    ERL_MODULE_REF
+                      ERL_Q_ATOM
+                        PsiElement(atom)('timer')
+                    PsiElement(:)(':')
+                    ERL_FUNCTION_CALL_EXPRESSION
+                      ERL_Q_ATOM
+                        PsiElement(atom)('now_diff')
+                      ERL_ARGUMENT_LIST
+                        PsiElement(()('(')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_VAR
+                            PsiElement(var)('T2')
+                        PsiElement(,)(',')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_VAR
+                            PsiElement(var)('T1')
+                        PsiElement())(')')
+                  PsiElement(})('}')
+                PsiElement(,)(',')
+                ERL_TUPLE_EXPRESSION
+                  PsiElement({)('{')
+                  ERL_MAX_EXPRESSION
                     ERL_Q_ATOM
-                      PsiElement(atom)('now_diff')
-                    ERL_ARGUMENT_LIST
-                      PsiElement(()('(')
-                      ERL_MAX_EXPRESSION
-                        ERL_Q_VAR
-                          PsiElement(var)('T2')
-                      PsiElement(,)(',')
-                      ERL_MAX_EXPRESSION
-                        ERL_Q_VAR
-                          PsiElement(var)('T1')
-                      PsiElement())(')')
+                      PsiElement(atom)('write_moov')
+                  PsiElement(,)(',')
+                  ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                    ERL_MODULE_REF
+                      ERL_Q_ATOM
+                        PsiElement(atom)('timer')
+                    PsiElement(:)(':')
+                    ERL_FUNCTION_CALL_EXPRESSION
+                      ERL_Q_ATOM
+                        PsiElement(atom)('now_diff')
+                      ERL_ARGUMENT_LIST
+                        PsiElement(()('(')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_VAR
+                            PsiElement(var)('T3')
+                        PsiElement(,)(',')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_VAR
+                            PsiElement(var)('T2')
+                        PsiElement())(')')
+                  PsiElement(})('}')
                 PsiElement(})('}')
-              PsiElement(,)(',')
-              ERL_TUPLE_EXPRESSION
-                PsiElement({)('{')
+              PsiElement())(')')
+        ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+          ERL_MODULE_REF
+            ERL_Q_ATOM
+              ForeignLeaf(atom: io)('io')
+          ForeignLeaf(:: :)(':')
+          ERL_FUNCTION_CALL_EXPRESSION
+            ERL_Q_ATOM
+              ForeignLeaf(atom: format)('format')
+            ERL_ARGUMENT_LIST
+              ForeignLeaf((: ()('(')
+              ERL_STRING_LITERAL
+                ForeignLeaf(string: "mp4mux:~p ~p~n")('"mp4mux:~p ~p~n"')
+              ForeignLeaf(,: ,)(',')
+              ERL_LIST_EXPRESSION
+                ForeignLeaf([: [)('[')
                 ERL_MAX_EXPRESSION
                   ERL_Q_ATOM
-                    PsiElement(atom)('write_moov')
-                PsiElement(,)(',')
-                ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
-                  ERL_MODULE_REF
+                    ERL_MACROS
+                      ForeignLeaf(?: ?)('?')
+                      ERL_MACROS_NAME
+                        ForeignLeaf(var: LINE)('LINE')
+                ForeignLeaf(,: ,)(',')
+                ERL_TUPLE_EXPRESSION
+                  ForeignLeaf({: {)('{')
+                  ERL_MAX_EXPRESSION
                     ERL_Q_ATOM
-                      PsiElement(atom)('timer')
-                  PsiElement(:)(':')
-                  ERL_FUNCTION_CALL_EXPRESSION
-                    ERL_Q_ATOM
-                      PsiElement(atom)('now_diff')
-                    ERL_ARGUMENT_LIST
-                      PsiElement(()('(')
-                      ERL_MAX_EXPRESSION
-                        ERL_Q_VAR
-                          PsiElement(var)('T3')
-                      PsiElement(,)(',')
-                      ERL_MAX_EXPRESSION
-                        ERL_Q_VAR
-                          PsiElement(var)('T2')
-                      PsiElement())(')')
-                PsiElement(})('}')
-              PsiElement(})('}')
-            PsiElement())(')')
+                      ForeignLeaf(atom: flush_moov)('flush_moov')
+                  ForeignLeaf(,: ,)(',')
+                  ERL_TUPLE_EXPRESSION
+                    ForeignLeaf({: {)('{')
+                    ERL_MAX_EXPRESSION
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: prepare_tracks)('prepare_tracks')
+                    ForeignLeaf(,: ,)(',')
+                    ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                      ERL_MODULE_REF
+                        ERL_Q_ATOM
+                          ForeignLeaf(atom: timer)('timer')
+                      ForeignLeaf(:: :)(':')
+                      ERL_FUNCTION_CALL_EXPRESSION
+                        ERL_Q_ATOM
+                          ForeignLeaf(atom: now_diff)('now_diff')
+                        ERL_ARGUMENT_LIST
+                          ForeignLeaf((: ()('(')
+                          ERL_MAX_EXPRESSION
+                            ERL_Q_VAR
+                              ForeignLeaf(var: T2)('T2')
+                          ForeignLeaf(,: ,)(',')
+                          ERL_MAX_EXPRESSION
+                            ERL_Q_VAR
+                              ForeignLeaf(var: T1)('T1')
+                          ForeignLeaf(): ))(')')
+                    ForeignLeaf(}: })('}')
+                  ForeignLeaf(,: ,)(',')
+                  ERL_TUPLE_EXPRESSION
+                    ForeignLeaf({: {)('{')
+                    ERL_MAX_EXPRESSION
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: write_moov)('write_moov')
+                    ForeignLeaf(,: ,)(',')
+                    ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                      ERL_MODULE_REF
+                        ERL_Q_ATOM
+                          ForeignLeaf(atom: timer)('timer')
+                      ForeignLeaf(:: :)(':')
+                      ERL_FUNCTION_CALL_EXPRESSION
+                        ERL_Q_ATOM
+                          ForeignLeaf(atom: now_diff)('now_diff')
+                        ERL_ARGUMENT_LIST
+                          ForeignLeaf((: ()('(')
+                          ERL_MAX_EXPRESSION
+                            ERL_Q_VAR
+                              ForeignLeaf(var: T3)('T3')
+                          ForeignLeaf(,: ,)(',')
+                          ERL_MAX_EXPRESSION
+                            ERL_Q_VAR
+                              ForeignLeaf(var: T2)('T2')
+                          ForeignLeaf(): ))(')')
+                    ForeignLeaf(}: })('}')
+                  ForeignLeaf(}: })('}')
+                ForeignLeaf(]: ])(']')
+              ForeignLeaf(): ))(')')
         PsiElement(,)(',')
         ERL_LIST_COMPREHENSION
           PsiElement([)('[')
@@ -1275,150 +1456,51 @@ ERL_FILE
                     PsiElement(atom)('write_time')
                 PsiElement())(')')
         PsiElement(,)(',')
-        ERL_FUNCTION_CALL_EXPRESSION
-          ERL_Q_ATOM
-            ERL_MACROS
-              PsiElement(?)('?')
-              ERL_MACROS_NAME
-                PsiElement(var)('D')
-          ERL_ARGUMENT_LIST
-            PsiElement(()('(')
-            ERL_TUPLE_EXPRESSION
-              PsiElement({)('{')
-              ERL_MAX_EXPRESSION
-                ERL_Q_ATOM
-                  PsiElement(atom)('finish')
-              PsiElement(,)(',')
+        ERL_MACROS
+          PsiElement(?)('?')
+          ERL_MACROS_NAME
+            PsiElement(var)('D')
+          ERL_MACRO_CALL_ARGUMENT_LIST
+            ERL_ARGUMENT_LIST
+              PsiElement(()('(')
               ERL_TUPLE_EXPRESSION
                 PsiElement({)('{')
                 ERL_MAX_EXPRESSION
                   ERL_Q_ATOM
-                    PsiElement(atom)('preparation')
+                    PsiElement(atom)('finish')
                 PsiElement(,)(',')
-                ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
-                  ERL_MODULE_REF
+                ERL_TUPLE_EXPRESSION
+                  PsiElement({)('{')
+                  ERL_MAX_EXPRESSION
                     ERL_Q_ATOM
-                      PsiElement(atom)('timer')
-                  PsiElement(:)(':')
-                  ERL_FUNCTION_CALL_EXPRESSION
-                    ERL_Q_ATOM
-                      PsiElement(atom)('now_diff')
-                    ERL_ARGUMENT_LIST
-                      PsiElement(()('(')
-                      ERL_MAX_EXPRESSION
-                        ERL_Q_VAR
-                          PsiElement(var)('T3')
-                      PsiElement(,)(',')
-                      ERL_MAX_EXPRESSION
-                        ERL_Q_VAR
-                          PsiElement(var)('T1')
-                      PsiElement())(')')
-                PsiElement(})('}')
-              PsiElement(,)(',')
-              ERL_TUPLE_EXPRESSION
-                PsiElement({)('{')
-                ERL_MAX_EXPRESSION
-                  ERL_Q_ATOM
-                    PsiElement(atom)('tracks')
-                PsiElement(,)(',')
-                ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
-                  ERL_MODULE_REF
-                    ERL_Q_ATOM
-                      PsiElement(atom)('timer')
-                  PsiElement(:)(':')
-                  ERL_FUNCTION_CALL_EXPRESSION
-                    ERL_Q_ATOM
-                      PsiElement(atom)('now_diff')
-                    ERL_ARGUMENT_LIST
-                      PsiElement(()('(')
-                      ERL_MAX_EXPRESSION
-                        ERL_Q_VAR
-                          PsiElement(var)('T4')
-                      PsiElement(,)(',')
-                      ERL_MAX_EXPRESSION
-                        ERL_Q_VAR
-                          PsiElement(var)('T3')
-                      PsiElement())(')')
-                PsiElement(})('}')
-              PsiElement(,)(',')
-              ERL_TUPLE_EXPRESSION
-                PsiElement({)('{')
-                ERL_MAX_EXPRESSION
-                  ERL_Q_ATOM
-                    PsiElement(atom)('total')
-                PsiElement(,)(',')
-                ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
-                  ERL_MODULE_REF
-                    ERL_Q_ATOM
-                      PsiElement(atom)('timer')
-                  PsiElement(:)(':')
-                  ERL_FUNCTION_CALL_EXPRESSION
-                    ERL_Q_ATOM
-                      PsiElement(atom)('now_diff')
-                    ERL_ARGUMENT_LIST
-                      PsiElement(()('(')
-                      ERL_MAX_EXPRESSION
-                        ERL_Q_VAR
-                          PsiElement(var)('T4')
-                      PsiElement(,)(',')
-                      ERL_MAX_EXPRESSION
-                        ERL_Q_VAR
-                          PsiElement(var)('T1')
-                      PsiElement())(')')
-                PsiElement(})('}')
-              PsiElement(,)(',')
-              ERL_TUPLE_EXPRESSION
-                PsiElement({)('{')
-                ERL_MAX_EXPRESSION
-                  ERL_Q_ATOM
-                    PsiElement(atom)('read')
-                PsiElement(,)(',')
-                ERL_FUNCTION_CALL_EXPRESSION
-                  ERL_Q_ATOM
-                    PsiElement(atom)('get')
-                  ERL_ARGUMENT_LIST
-                    PsiElement(()('(')
-                    ERL_MAX_EXPRESSION
+                      PsiElement(atom)('preparation')
+                  PsiElement(,)(',')
+                  ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                    ERL_MODULE_REF
                       ERL_Q_ATOM
-                        PsiElement(atom)('read_time')
-                    PsiElement())(')')
-                PsiElement(})('}')
-              PsiElement(,)(',')
-              ERL_TUPLE_EXPRESSION
-                PsiElement({)('{')
-                ERL_MAX_EXPRESSION
-                  ERL_Q_ATOM
-                    PsiElement(atom)('write')
-                PsiElement(,)(',')
-                ERL_FUNCTION_CALL_EXPRESSION
-                  ERL_Q_ATOM
-                    PsiElement(atom)('get')
-                  ERL_ARGUMENT_LIST
-                    PsiElement(()('(')
-                    ERL_MAX_EXPRESSION
+                        PsiElement(atom)('timer')
+                    PsiElement(:)(':')
+                    ERL_FUNCTION_CALL_EXPRESSION
                       ERL_Q_ATOM
-                        PsiElement(atom)('write_time')
-                    PsiElement())(')')
-                PsiElement(})('}')
-              PsiElement(,)(',')
-              ERL_TUPLE_EXPRESSION
-                PsiElement({)('{')
-                ERL_MAX_EXPRESSION
-                  ERL_Q_ATOM
-                    PsiElement(atom)('io')
+                        PsiElement(atom)('now_diff')
+                      ERL_ARGUMENT_LIST
+                        PsiElement(()('(')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_VAR
+                            PsiElement(var)('T3')
+                        PsiElement(,)(',')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_VAR
+                            PsiElement(var)('T1')
+                        PsiElement())(')')
+                  PsiElement(})('}')
                 PsiElement(,)(',')
-                ERL_MAX_EXPRESSION
-                  ERL_Q_VAR
-                    PsiElement(var)('IO')
-                PsiElement(})('}')
-              PsiElement(,)(',')
-              ERL_TUPLE_EXPRESSION
-                PsiElement({)('{')
-                ERL_MAX_EXPRESSION
-                  ERL_Q_ATOM
-                    PsiElement(atom)('difference')
-                PsiElement(,)(',')
-                ERL_ADDITIVE_EXPRESSION
+                ERL_TUPLE_EXPRESSION
+                  PsiElement({)('{')
+                  ERL_MAX_EXPRESSION
+                    ERL_Q_ATOM
+                      PsiElement(atom)('tracks')
+                  PsiElement(,)(',')
                   ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
                     ERL_MODULE_REF
                       ERL_Q_ATOM
@@ -1437,17 +1519,303 @@ ERL_FILE
                           ERL_Q_VAR
                             PsiElement(var)('T3')
                         PsiElement())(')')
-                  PsiElement(-)('-')
+                  PsiElement(})('}')
+                PsiElement(,)(',')
+                ERL_TUPLE_EXPRESSION
+                  PsiElement({)('{')
+                  ERL_MAX_EXPRESSION
+                    ERL_Q_ATOM
+                      PsiElement(atom)('total')
+                  PsiElement(,)(',')
+                  ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                    ERL_MODULE_REF
+                      ERL_Q_ATOM
+                        PsiElement(atom)('timer')
+                    PsiElement(:)(':')
+                    ERL_FUNCTION_CALL_EXPRESSION
+                      ERL_Q_ATOM
+                        PsiElement(atom)('now_diff')
+                      ERL_ARGUMENT_LIST
+                        PsiElement(()('(')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_VAR
+                            PsiElement(var)('T4')
+                        PsiElement(,)(',')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_VAR
+                            PsiElement(var)('T1')
+                        PsiElement())(')')
+                  PsiElement(})('}')
+                PsiElement(,)(',')
+                ERL_TUPLE_EXPRESSION
+                  PsiElement({)('{')
+                  ERL_MAX_EXPRESSION
+                    ERL_Q_ATOM
+                      PsiElement(atom)('read')
+                  PsiElement(,)(',')
+                  ERL_FUNCTION_CALL_EXPRESSION
+                    ERL_Q_ATOM
+                      PsiElement(atom)('get')
+                    ERL_ARGUMENT_LIST
+                      PsiElement(()('(')
+                      ERL_MAX_EXPRESSION
+                        ERL_Q_ATOM
+                          PsiElement(atom)('read_time')
+                      PsiElement())(')')
+                  PsiElement(})('}')
+                PsiElement(,)(',')
+                ERL_TUPLE_EXPRESSION
+                  PsiElement({)('{')
+                  ERL_MAX_EXPRESSION
+                    ERL_Q_ATOM
+                      PsiElement(atom)('write')
+                  PsiElement(,)(',')
+                  ERL_FUNCTION_CALL_EXPRESSION
+                    ERL_Q_ATOM
+                      PsiElement(atom)('get')
+                    ERL_ARGUMENT_LIST
+                      PsiElement(()('(')
+                      ERL_MAX_EXPRESSION
+                        ERL_Q_ATOM
+                          PsiElement(atom)('write_time')
+                      PsiElement())(')')
+                  PsiElement(})('}')
+                PsiElement(,)(',')
+                ERL_TUPLE_EXPRESSION
+                  PsiElement({)('{')
+                  ERL_MAX_EXPRESSION
+                    ERL_Q_ATOM
+                      PsiElement(atom)('io')
+                  PsiElement(,)(',')
                   ERL_MAX_EXPRESSION
                     ERL_Q_VAR
                       PsiElement(var)('IO')
+                  PsiElement(})('}')
+                PsiElement(,)(',')
+                ERL_TUPLE_EXPRESSION
+                  PsiElement({)('{')
+                  ERL_MAX_EXPRESSION
+                    ERL_Q_ATOM
+                      PsiElement(atom)('difference')
+                  PsiElement(,)(',')
+                  ERL_ADDITIVE_EXPRESSION
+                    ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                      ERL_MODULE_REF
+                        ERL_Q_ATOM
+                          PsiElement(atom)('timer')
+                      PsiElement(:)(':')
+                      ERL_FUNCTION_CALL_EXPRESSION
+                        ERL_Q_ATOM
+                          PsiElement(atom)('now_diff')
+                        ERL_ARGUMENT_LIST
+                          PsiElement(()('(')
+                          ERL_MAX_EXPRESSION
+                            ERL_Q_VAR
+                              PsiElement(var)('T4')
+                          PsiElement(,)(',')
+                          ERL_MAX_EXPRESSION
+                            ERL_Q_VAR
+                              PsiElement(var)('T3')
+                          PsiElement())(')')
+                    PsiElement(-)('-')
+                    ERL_MAX_EXPRESSION
+                      ERL_Q_VAR
+                        PsiElement(var)('IO')
+                  PsiElement(})('}')
+                PsiElement(,)(',')
+                ERL_MAX_EXPRESSION
+                  ERL_Q_ATOM
+                    PsiElement(atom)('ok')
                 PsiElement(})('}')
-              PsiElement(,)(',')
-              ERL_MAX_EXPRESSION
-                ERL_Q_ATOM
-                  PsiElement(atom)('ok')
-              PsiElement(})('}')
-            PsiElement())(')')
+              PsiElement())(')')
+        ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+          ERL_MODULE_REF
+            ERL_Q_ATOM
+              ForeignLeaf(atom: io)('io')
+          ForeignLeaf(:: :)(':')
+          ERL_FUNCTION_CALL_EXPRESSION
+            ERL_Q_ATOM
+              ForeignLeaf(atom: format)('format')
+            ERL_ARGUMENT_LIST
+              ForeignLeaf((: ()('(')
+              ERL_STRING_LITERAL
+                ForeignLeaf(string: "mp4mux:~p ~p~n")('"mp4mux:~p ~p~n"')
+              ForeignLeaf(,: ,)(',')
+              ERL_LIST_EXPRESSION
+                ForeignLeaf([: [)('[')
+                ERL_MAX_EXPRESSION
+                  ERL_Q_ATOM
+                    ERL_MACROS
+                      ForeignLeaf(?: ?)('?')
+                      ERL_MACROS_NAME
+                        ForeignLeaf(var: LINE)('LINE')
+                ForeignLeaf(,: ,)(',')
+                ERL_TUPLE_EXPRESSION
+                  ForeignLeaf({: {)('{')
+                  ERL_MAX_EXPRESSION
+                    ERL_Q_ATOM
+                      ForeignLeaf(atom: finish)('finish')
+                  ForeignLeaf(,: ,)(',')
+                  ERL_TUPLE_EXPRESSION
+                    ForeignLeaf({: {)('{')
+                    ERL_MAX_EXPRESSION
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: preparation)('preparation')
+                    ForeignLeaf(,: ,)(',')
+                    ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                      ERL_MODULE_REF
+                        ERL_Q_ATOM
+                          ForeignLeaf(atom: timer)('timer')
+                      ForeignLeaf(:: :)(':')
+                      ERL_FUNCTION_CALL_EXPRESSION
+                        ERL_Q_ATOM
+                          ForeignLeaf(atom: now_diff)('now_diff')
+                        ERL_ARGUMENT_LIST
+                          ForeignLeaf((: ()('(')
+                          ERL_MAX_EXPRESSION
+                            ERL_Q_VAR
+                              ForeignLeaf(var: T3)('T3')
+                          ForeignLeaf(,: ,)(',')
+                          ERL_MAX_EXPRESSION
+                            ERL_Q_VAR
+                              ForeignLeaf(var: T1)('T1')
+                          ForeignLeaf(): ))(')')
+                    ForeignLeaf(}: })('}')
+                  ForeignLeaf(,: ,)(',')
+                  ERL_TUPLE_EXPRESSION
+                    ForeignLeaf({: {)('{')
+                    ERL_MAX_EXPRESSION
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: tracks)('tracks')
+                    ForeignLeaf(,: ,)(',')
+                    ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                      ERL_MODULE_REF
+                        ERL_Q_ATOM
+                          ForeignLeaf(atom: timer)('timer')
+                      ForeignLeaf(:: :)(':')
+                      ERL_FUNCTION_CALL_EXPRESSION
+                        ERL_Q_ATOM
+                          ForeignLeaf(atom: now_diff)('now_diff')
+                        ERL_ARGUMENT_LIST
+                          ForeignLeaf((: ()('(')
+                          ERL_MAX_EXPRESSION
+                            ERL_Q_VAR
+                              ForeignLeaf(var: T4)('T4')
+                          ForeignLeaf(,: ,)(',')
+                          ERL_MAX_EXPRESSION
+                            ERL_Q_VAR
+                              ForeignLeaf(var: T3)('T3')
+                          ForeignLeaf(): ))(')')
+                    ForeignLeaf(}: })('}')
+                  ForeignLeaf(,: ,)(',')
+                  ERL_TUPLE_EXPRESSION
+                    ForeignLeaf({: {)('{')
+                    ERL_MAX_EXPRESSION
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: total)('total')
+                    ForeignLeaf(,: ,)(',')
+                    ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                      ERL_MODULE_REF
+                        ERL_Q_ATOM
+                          ForeignLeaf(atom: timer)('timer')
+                      ForeignLeaf(:: :)(':')
+                      ERL_FUNCTION_CALL_EXPRESSION
+                        ERL_Q_ATOM
+                          ForeignLeaf(atom: now_diff)('now_diff')
+                        ERL_ARGUMENT_LIST
+                          ForeignLeaf((: ()('(')
+                          ERL_MAX_EXPRESSION
+                            ERL_Q_VAR
+                              ForeignLeaf(var: T4)('T4')
+                          ForeignLeaf(,: ,)(',')
+                          ERL_MAX_EXPRESSION
+                            ERL_Q_VAR
+                              ForeignLeaf(var: T1)('T1')
+                          ForeignLeaf(): ))(')')
+                    ForeignLeaf(}: })('}')
+                  ForeignLeaf(,: ,)(',')
+                  ERL_TUPLE_EXPRESSION
+                    ForeignLeaf({: {)('{')
+                    ERL_MAX_EXPRESSION
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: read)('read')
+                    ForeignLeaf(,: ,)(',')
+                    ERL_FUNCTION_CALL_EXPRESSION
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: get)('get')
+                      ERL_ARGUMENT_LIST
+                        ForeignLeaf((: ()('(')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_ATOM
+                            ForeignLeaf(atom: read_time)('read_time')
+                        ForeignLeaf(): ))(')')
+                    ForeignLeaf(}: })('}')
+                  ForeignLeaf(,: ,)(',')
+                  ERL_TUPLE_EXPRESSION
+                    ForeignLeaf({: {)('{')
+                    ERL_MAX_EXPRESSION
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: write)('write')
+                    ForeignLeaf(,: ,)(',')
+                    ERL_FUNCTION_CALL_EXPRESSION
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: get)('get')
+                      ERL_ARGUMENT_LIST
+                        ForeignLeaf((: ()('(')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_ATOM
+                            ForeignLeaf(atom: write_time)('write_time')
+                        ForeignLeaf(): ))(')')
+                    ForeignLeaf(}: })('}')
+                  ForeignLeaf(,: ,)(',')
+                  ERL_TUPLE_EXPRESSION
+                    ForeignLeaf({: {)('{')
+                    ERL_MAX_EXPRESSION
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: io)('io')
+                    ForeignLeaf(,: ,)(',')
+                    ERL_MAX_EXPRESSION
+                      ERL_Q_VAR
+                        ForeignLeaf(var: IO)('IO')
+                    ForeignLeaf(}: })('}')
+                  ForeignLeaf(,: ,)(',')
+                  ERL_TUPLE_EXPRESSION
+                    ForeignLeaf({: {)('{')
+                    ERL_MAX_EXPRESSION
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: difference)('difference')
+                    ForeignLeaf(,: ,)(',')
+                    ERL_ADDITIVE_EXPRESSION
+                      ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                        ERL_MODULE_REF
+                          ERL_Q_ATOM
+                            ForeignLeaf(atom: timer)('timer')
+                        ForeignLeaf(:: :)(':')
+                        ERL_FUNCTION_CALL_EXPRESSION
+                          ERL_Q_ATOM
+                            ForeignLeaf(atom: now_diff)('now_diff')
+                          ERL_ARGUMENT_LIST
+                            ForeignLeaf((: ()('(')
+                            ERL_MAX_EXPRESSION
+                              ERL_Q_VAR
+                                ForeignLeaf(var: T4)('T4')
+                            ForeignLeaf(,: ,)(',')
+                            ERL_MAX_EXPRESSION
+                              ERL_Q_VAR
+                                ForeignLeaf(var: T3)('T3')
+                            ForeignLeaf(): ))(')')
+                      ForeignLeaf(-: -)('-')
+                      ERL_MAX_EXPRESSION
+                        ERL_Q_VAR
+                          ForeignLeaf(var: IO)('IO')
+                    ForeignLeaf(}: })('}')
+                  ForeignLeaf(,: ,)(',')
+                  ERL_MAX_EXPRESSION
+                    ERL_Q_ATOM
+                      ForeignLeaf(atom: ok)('ok')
+                  ForeignLeaf(}: })('}')
+                ForeignLeaf(]: ])(']')
+              ForeignLeaf(): ))(')')
         PsiElement(,)(',')
         ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
           ERL_MODULE_REF
@@ -2800,59 +3168,126 @@ ERL_FILE
                 PsiElement(()('(')
                 PsiElement())(')')
         PsiElement(,)(',')
-        ERL_FUNCTION_CALL_EXPRESSION
-          ERL_Q_ATOM
-            ERL_MACROS
-              PsiElement(?)('?')
-              ERL_MACROS_NAME
-                PsiElement(var)('D')
-          ERL_ARGUMENT_LIST
-            PsiElement(()('(')
-            ERL_TUPLE_EXPRESSION
-              PsiElement({)('{')
-              ERL_MAX_EXPRESSION
-                ERL_Q_ATOM
-                  PsiElement(atom)('written_track')
-              PsiElement(,)(',')
-              ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
-                ERL_MODULE_REF
+        ERL_MACROS
+          PsiElement(?)('?')
+          ERL_MACROS_NAME
+            PsiElement(var)('D')
+          ERL_MACRO_CALL_ARGUMENT_LIST
+            ERL_ARGUMENT_LIST
+              PsiElement(()('(')
+              ERL_TUPLE_EXPRESSION
+                PsiElement({)('{')
+                ERL_MAX_EXPRESSION
                   ERL_Q_ATOM
-                    PsiElement(atom)('timer')
-                PsiElement(:)(':')
-                ERL_FUNCTION_CALL_EXPRESSION
+                    PsiElement(atom)('written_track')
+                PsiElement(,)(',')
+                ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                  ERL_MODULE_REF
+                    ERL_Q_ATOM
+                      PsiElement(atom)('timer')
+                  PsiElement(:)(':')
+                  ERL_FUNCTION_CALL_EXPRESSION
+                    ERL_Q_ATOM
+                      PsiElement(atom)('now_diff')
+                    ERL_ARGUMENT_LIST
+                      PsiElement(()('(')
+                      ERL_MAX_EXPRESSION
+                        ERL_Q_VAR
+                          PsiElement(var)('T2')
+                      PsiElement(,)(',')
+                      ERL_MAX_EXPRESSION
+                        ERL_Q_VAR
+                          PsiElement(var)('T0')
+                      PsiElement())(')')
+                PsiElement(,)(',')
+                ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                  ERL_MODULE_REF
+                    ERL_Q_ATOM
+                      PsiElement(atom)('timer')
+                  PsiElement(:)(':')
+                  ERL_FUNCTION_CALL_EXPRESSION
+                    ERL_Q_ATOM
+                      PsiElement(atom)('now_diff')
+                    ERL_ARGUMENT_LIST
+                      PsiElement(()('(')
+                      ERL_MAX_EXPRESSION
+                        ERL_Q_VAR
+                          PsiElement(var)('T3')
+                      PsiElement(,)(',')
+                      ERL_MAX_EXPRESSION
+                        ERL_Q_VAR
+                          PsiElement(var)('T0')
+                      PsiElement())(')')
+                PsiElement(})('}')
+              PsiElement())(')')
+        ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+          ERL_MODULE_REF
+            ERL_Q_ATOM
+              ForeignLeaf(atom: io)('io')
+          ForeignLeaf(:: :)(':')
+          ERL_FUNCTION_CALL_EXPRESSION
+            ERL_Q_ATOM
+              ForeignLeaf(atom: format)('format')
+            ERL_ARGUMENT_LIST
+              ForeignLeaf((: ()('(')
+              ERL_STRING_LITERAL
+                ForeignLeaf(string: "mp4mux:~p ~p~n")('"mp4mux:~p ~p~n"')
+              ForeignLeaf(,: ,)(',')
+              ERL_LIST_EXPRESSION
+                ForeignLeaf([: [)('[')
+                ERL_MAX_EXPRESSION
                   ERL_Q_ATOM
-                    PsiElement(atom)('now_diff')
-                  ERL_ARGUMENT_LIST
-                    PsiElement(()('(')
-                    ERL_MAX_EXPRESSION
-                      ERL_Q_VAR
-                        PsiElement(var)('T2')
-                    PsiElement(,)(',')
-                    ERL_MAX_EXPRESSION
-                      ERL_Q_VAR
-                        PsiElement(var)('T0')
-                    PsiElement())(')')
-              PsiElement(,)(',')
-              ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
-                ERL_MODULE_REF
-                  ERL_Q_ATOM
-                    PsiElement(atom)('timer')
-                PsiElement(:)(':')
-                ERL_FUNCTION_CALL_EXPRESSION
-                  ERL_Q_ATOM
-                    PsiElement(atom)('now_diff')
-                  ERL_ARGUMENT_LIST
-                    PsiElement(()('(')
-                    ERL_MAX_EXPRESSION
-                      ERL_Q_VAR
-                        PsiElement(var)('T3')
-                    PsiElement(,)(',')
-                    ERL_MAX_EXPRESSION
-                      ERL_Q_VAR
-                        PsiElement(var)('T0')
-                    PsiElement())(')')
-              PsiElement(})('}')
-            PsiElement())(')')
+                    ERL_MACROS
+                      ForeignLeaf(?: ?)('?')
+                      ERL_MACROS_NAME
+                        ForeignLeaf(var: LINE)('LINE')
+                ForeignLeaf(,: ,)(',')
+                ERL_TUPLE_EXPRESSION
+                  ForeignLeaf({: {)('{')
+                  ERL_MAX_EXPRESSION
+                    ERL_Q_ATOM
+                      ForeignLeaf(atom: written_track)('written_track')
+                  ForeignLeaf(,: ,)(',')
+                  ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                    ERL_MODULE_REF
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: timer)('timer')
+                    ForeignLeaf(:: :)(':')
+                    ERL_FUNCTION_CALL_EXPRESSION
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: now_diff)('now_diff')
+                      ERL_ARGUMENT_LIST
+                        ForeignLeaf((: ()('(')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_VAR
+                            ForeignLeaf(var: T2)('T2')
+                        ForeignLeaf(,: ,)(',')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_VAR
+                            ForeignLeaf(var: T0)('T0')
+                        ForeignLeaf(): ))(')')
+                  ForeignLeaf(,: ,)(',')
+                  ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                    ERL_MODULE_REF
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: timer)('timer')
+                    ForeignLeaf(:: :)(':')
+                    ERL_FUNCTION_CALL_EXPRESSION
+                      ERL_Q_ATOM
+                        ForeignLeaf(atom: now_diff)('now_diff')
+                      ERL_ARGUMENT_LIST
+                        ForeignLeaf((: ()('(')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_VAR
+                            ForeignLeaf(var: T3)('T3')
+                        ForeignLeaf(,: ,)(',')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_VAR
+                            ForeignLeaf(var: T0)('T0')
+                        ForeignLeaf(): ))(')')
+                  ForeignLeaf(}: })('}')
+                ForeignLeaf(]: ])(']')
+              ForeignLeaf(): ))(')')
         PsiElement(,)(',')
         ERL_MAX_EXPRESSION
           ERL_Q_ATOM
@@ -3422,40 +3857,88 @@ ERL_FILE
                       PsiElement(()('(')
                       PsiElement())(')')
               PsiElement(,)(',')
-              ERL_FUNCTION_CALL_EXPRESSION
-                ERL_Q_ATOM
-                  ERL_MACROS
-                    PsiElement(?)('?')
-                    ERL_MACROS_NAME
-                      PsiElement(var)('D')
-                ERL_ARGUMENT_LIST
-                  PsiElement(()('(')
-                  ERL_TUPLE_EXPRESSION
-                    PsiElement({)('{')
-                    ERL_MAX_EXPRESSION
-                      ERL_Q_ATOM
-                        PsiElement(atom)('pread_moov')
-                    PsiElement(,)(',')
-                    ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
-                      ERL_MODULE_REF
+              ERL_MACROS
+                PsiElement(?)('?')
+                ERL_MACROS_NAME
+                  PsiElement(var)('D')
+                ERL_MACRO_CALL_ARGUMENT_LIST
+                  ERL_ARGUMENT_LIST
+                    PsiElement(()('(')
+                    ERL_TUPLE_EXPRESSION
+                      PsiElement({)('{')
+                      ERL_MAX_EXPRESSION
                         ERL_Q_ATOM
-                          PsiElement(atom)('timer')
-                      PsiElement(:)(':')
-                      ERL_FUNCTION_CALL_EXPRESSION
+                          PsiElement(atom)('pread_moov')
+                      PsiElement(,)(',')
+                      ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                        ERL_MODULE_REF
+                          ERL_Q_ATOM
+                            PsiElement(atom)('timer')
+                        PsiElement(:)(':')
+                        ERL_FUNCTION_CALL_EXPRESSION
+                          ERL_Q_ATOM
+                            PsiElement(atom)('now_diff')
+                          ERL_ARGUMENT_LIST
+                            PsiElement(()('(')
+                            ERL_MAX_EXPRESSION
+                              ERL_Q_VAR
+                                PsiElement(var)('T2')
+                            PsiElement(,)(',')
+                            ERL_MAX_EXPRESSION
+                              ERL_Q_VAR
+                                PsiElement(var)('T1')
+                            PsiElement())(')')
+                      PsiElement(})('}')
+                    PsiElement())(')')
+              ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                ERL_MODULE_REF
+                  ERL_Q_ATOM
+                    ForeignLeaf(atom: io)('io')
+                ForeignLeaf(:: :)(':')
+                ERL_FUNCTION_CALL_EXPRESSION
+                  ERL_Q_ATOM
+                    ForeignLeaf(atom: format)('format')
+                  ERL_ARGUMENT_LIST
+                    ForeignLeaf((: ()('(')
+                    ERL_STRING_LITERAL
+                      ForeignLeaf(string: "mp4mux:~p ~p~n")('"mp4mux:~p ~p~n"')
+                    ForeignLeaf(,: ,)(',')
+                    ERL_LIST_EXPRESSION
+                      ForeignLeaf([: [)('[')
+                      ERL_MAX_EXPRESSION
                         ERL_Q_ATOM
-                          PsiElement(atom)('now_diff')
-                        ERL_ARGUMENT_LIST
-                          PsiElement(()('(')
-                          ERL_MAX_EXPRESSION
-                            ERL_Q_VAR
-                              PsiElement(var)('T2')
-                          PsiElement(,)(',')
-                          ERL_MAX_EXPRESSION
-                            ERL_Q_VAR
-                              PsiElement(var)('T1')
-                          PsiElement())(')')
-                    PsiElement(})('}')
-                  PsiElement())(')')
+                          ERL_MACROS
+                            ForeignLeaf(?: ?)('?')
+                            ERL_MACROS_NAME
+                              ForeignLeaf(var: LINE)('LINE')
+                      ForeignLeaf(,: ,)(',')
+                      ERL_TUPLE_EXPRESSION
+                        ForeignLeaf({: {)('{')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_ATOM
+                            ForeignLeaf(atom: pread_moov)('pread_moov')
+                        ForeignLeaf(,: ,)(',')
+                        ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                          ERL_MODULE_REF
+                            ERL_Q_ATOM
+                              ForeignLeaf(atom: timer)('timer')
+                          ForeignLeaf(:: :)(':')
+                          ERL_FUNCTION_CALL_EXPRESSION
+                            ERL_Q_ATOM
+                              ForeignLeaf(atom: now_diff)('now_diff')
+                            ERL_ARGUMENT_LIST
+                              ForeignLeaf((: ()('(')
+                              ERL_MAX_EXPRESSION
+                                ERL_Q_VAR
+                                  ForeignLeaf(var: T2)('T2')
+                              ForeignLeaf(,: ,)(',')
+                              ERL_MAX_EXPRESSION
+                                ERL_Q_VAR
+                                  ForeignLeaf(var: T1)('T1')
+                              ForeignLeaf(): ))(')')
+                        ForeignLeaf(}: })('}')
+                      ForeignLeaf(]: ])(']')
+                    ForeignLeaf(): ))(')')
               PsiElement(,)(',')
               ERL_ASSIGNMENT_EXPRESSION
                 ERL_MAX_EXPRESSION
@@ -4160,25 +4643,58 @@ ERL_FILE
                       PsiElement(})('}')
                   ERL_CLAUSE_BODY
                     PsiElement(->)('->')
-                    ERL_FUNCTION_CALL_EXPRESSION
-                      ERL_Q_ATOM
-                        ERL_MACROS
-                          PsiElement(?)('?')
-                          ERL_MACROS_NAME
-                            PsiElement(var)('D')
-                      ERL_ARGUMENT_LIST
-                        PsiElement(()('(')
-                        ERL_TUPLE_EXPRESSION
-                          PsiElement({)('{')
-                          ERL_MAX_EXPRESSION
-                            ERL_Q_ATOM
-                              PsiElement(atom)('invalid_atom')
-                          PsiElement(,)(',')
-                          ERL_MAX_EXPRESSION
-                            ERL_Q_VAR
-                              PsiElement(var)('Bin')
-                          PsiElement(})('}')
-                        PsiElement())(')')
+                    ERL_MACROS
+                      PsiElement(?)('?')
+                      ERL_MACROS_NAME
+                        PsiElement(var)('D')
+                      ERL_MACRO_CALL_ARGUMENT_LIST
+                        ERL_ARGUMENT_LIST
+                          PsiElement(()('(')
+                          ERL_TUPLE_EXPRESSION
+                            PsiElement({)('{')
+                            ERL_MAX_EXPRESSION
+                              ERL_Q_ATOM
+                                PsiElement(atom)('invalid_atom')
+                            PsiElement(,)(',')
+                            ERL_MAX_EXPRESSION
+                              ERL_Q_VAR
+                                PsiElement(var)('Bin')
+                            PsiElement(})('}')
+                          PsiElement())(')')
+                    ERL_GLOBAL_FUNCTION_CALL_EXPRESSION
+                      ERL_MODULE_REF
+                        ERL_Q_ATOM
+                          ForeignLeaf(atom: io)('io')
+                      ForeignLeaf(:: :)(':')
+                      ERL_FUNCTION_CALL_EXPRESSION
+                        ERL_Q_ATOM
+                          ForeignLeaf(atom: format)('format')
+                        ERL_ARGUMENT_LIST
+                          ForeignLeaf((: ()('(')
+                          ERL_STRING_LITERAL
+                            ForeignLeaf(string: "mp4mux:~p ~p~n")('"mp4mux:~p ~p~n"')
+                          ForeignLeaf(,: ,)(',')
+                          ERL_LIST_EXPRESSION
+                            ForeignLeaf([: [)('[')
+                            ERL_MAX_EXPRESSION
+                              ERL_Q_ATOM
+                                ERL_MACROS
+                                  ForeignLeaf(?: ?)('?')
+                                  ERL_MACROS_NAME
+                                    ForeignLeaf(var: LINE)('LINE')
+                            ForeignLeaf(,: ,)(',')
+                            ERL_TUPLE_EXPRESSION
+                              ForeignLeaf({: {)('{')
+                              ERL_MAX_EXPRESSION
+                                ERL_Q_ATOM
+                                  ForeignLeaf(atom: invalid_atom)('invalid_atom')
+                              ForeignLeaf(,: ,)(',')
+                              ERL_MAX_EXPRESSION
+                                ERL_Q_VAR
+                                  ForeignLeaf(var: Bin)('Bin')
+                              ForeignLeaf(}: })('}')
+                            ForeignLeaf(]: ])(']')
+                          ForeignLeaf(): ))(')')
                     PsiElement(,)(',')
                     ERL_TUPLE_EXPRESSION
                       PsiElement({)('{')
