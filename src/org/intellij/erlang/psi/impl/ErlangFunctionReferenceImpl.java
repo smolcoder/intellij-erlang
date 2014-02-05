@@ -47,11 +47,12 @@ public class ErlangFunctionReferenceImpl<T extends ErlangQAtom> extends PsiPolyV
   protected final String myReferenceName;
   private final int myArity;
 
-  public ErlangFunctionReferenceImpl(@NotNull T element, @Nullable ErlangQAtom moduleAtom, TextRange range, String name, int arity) {
-    super(element, range);
-    myReferenceName = name;
+  public ErlangFunctionReferenceImpl(@NotNull T element, @Nullable ErlangQAtom moduleAtom, int arity) {
+    super(element, TextRange.from(0, element.getTextLength()));
     myModuleAtom = moduleAtom;
     myArity = arity;
+    PsiElement functionAtom = element.getAtom();
+    myReferenceName = functionAtom == null ? element.getText() : functionAtom.getText();
   }
 
   @Override
