@@ -49,7 +49,7 @@ public class ErlangVariableReferenceImpl extends PsiReferenceBase<ErlangQVar> {
 
   @Override
   public PsiElement resolve() {
-    ErlangVarProcessor processor = new ErlangVarProcessor(myElement.getText(), myElement);
+    ErlangVarProcessor processor = new ErlangVarProcessor(getVariableName(), myElement);
     ErlangListComprehension lc = PsiTreeUtil.getParentOfType(myElement, ErlangListComprehension.class);
     ErlangCompositeElement place = lc != null ? lc.getLcExprs() : myElement;
     ResolveUtil.treeWalkUp(place, processor);
@@ -61,6 +61,12 @@ public class ErlangVariableReferenceImpl extends PsiReferenceBase<ErlangQVar> {
     module.processDeclarations(processor, ResolveState.initial(), module, module);
 
     return processor.getResult();
+  }
+
+  @NotNull
+  private String getVariableName() {
+    PsiElement var = myElement.getVar();
+    return var != null ? var.getText() : myElement.getText();
   }
 
   @Nullable
