@@ -37,10 +37,11 @@ public class ErlangUnresolvedMacrosInspection extends ErlangInspectionBase {
       public void visitMacros(@NotNull ErlangMacros o) {
         ErlangMacrosName macrosName = o.getMacrosName();
         if (macrosName == null) return;
-        if (ErlangPsiImplUtil.KNOWN_MACROS.contains(macrosName.getText())) return;
+        String macro = ErlangPsiImplUtil.getMacroName(macrosName);
+        if (ErlangPsiImplUtil.KNOWN_MACROS.contains(macro)) return;
         PsiReference reference = o.getReference();
         if (reference != null && reference.resolve() == null) {
-          problemsHolder.registerProblem(o, "Unresolved macros " + "'" + o.getText() + "'", new ErlangIntroduceMacroQuickFix());
+          registerProblemForeignTokensAware(problemsHolder, o, "Unresolved macro " + "'" + macro + "'", new ErlangIntroduceMacroQuickFix());
         }
       }
     });

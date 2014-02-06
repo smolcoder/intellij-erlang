@@ -325,7 +325,16 @@ public class ErlangPsiImplUtil {
     if (macrosName == null) return null;
     ErlangMacroCallArgumentList argList = o.getMacroCallArgumentList();
     int arity = argList == null ? -1 : argList.getArgumentList().getExpressionList().size();
-    return new ErlangMacrosReferenceImpl<ErlangMacrosName>(macrosName, TextRange.from(0, macrosName.getTextLength()), macrosName.getText(), arity);
+    return new ErlangMacrosReferenceImpl<ErlangMacrosName>(macrosName, TextRange.from(0, macrosName.getTextLength()), getMacroName(macrosName), arity);
+  }
+
+  @NotNull
+  public static String getMacroName(ErlangMacrosName macroNameElement) {
+    PsiElement atom = macroNameElement.getAtom();
+    if (atom != null) return atom.getText();
+    PsiElement var = macroNameElement.getVar();
+    if (var != null) return var.getText();
+    return macroNameElement.getText();
   }
 
   @Nullable
