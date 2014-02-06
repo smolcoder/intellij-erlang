@@ -17,6 +17,7 @@
 package org.intellij.erlang.inspection;
 
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -42,9 +43,12 @@ public class ErlangUnresolvedRecordFieldInspection extends ErlangInspectionBase 
 
         PsiReference reference = o.getReference();
         if (reference == null || reference.resolve() == null) {
-          ErlangQAtom atom = o.getFieldNameAtom();
-          if (atom == null || atom.getMacros() != null) return;
-          problemsHolder.registerProblem(atom, "Unresolved record field " + "'" + atom.getText() + "'", new ErlangIntroduceRecordFieldFix());
+          ErlangQAtom qAtom = o.getFieldNameAtom();
+          if (qAtom == null || qAtom.getMacros() != null) return;
+          PsiElement atom = qAtom.getAtom();
+          registerProblemForeignTokensAware(problemsHolder, qAtom,
+            "Unresolved record field " + "'" + (atom != null ? atom.getText() : qAtom.getText()) + "'",
+            new ErlangIntroduceRecordFieldFix());
         }
       }
     });

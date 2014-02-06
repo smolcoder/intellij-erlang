@@ -200,9 +200,11 @@ public class ErlangPsiImplUtil {
   }
 
   @Nullable
-  private static PsiReference getRecordFieldReference(@Nullable ErlangQAtom atom) {
-    if (atom == null) return null;
-    return new ErlangAtomBasedReferenceImpl<ErlangQAtom>(atom, TextRange.from(0, atom.getTextLength()), atom.getText()) {
+  private static PsiReference getRecordFieldReference(@Nullable ErlangQAtom qAtom) {
+    if (qAtom == null) return null;
+    PsiElement atom = qAtom.getAtom();
+    return new ErlangAtomBasedReferenceImpl<ErlangQAtom>(qAtom, TextRange.from(0, qAtom.getTextLength()),
+      atom != null ? atom.getText() : qAtom.getText()) {
       @Override
       public PsiElement resolve() {
         Pair<List<ErlangTypedExpr>, List<ErlangQAtom>> recordFields = getRecordFields(myElement);
@@ -1148,7 +1150,9 @@ public class ErlangPsiImplUtil {
 
   @NotNull
   public static PsiElement getNameIdentifier(ErlangTypedExpr o) {
-    return o.getQAtom();
+    ErlangQAtom qAtom = o.getQAtom();
+    PsiElement atom = qAtom.getAtom();
+    return atom != null ? atom : qAtom;
   }
 
   public static int getTextOffset(ErlangTypedExpr o) {
