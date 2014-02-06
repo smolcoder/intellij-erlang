@@ -26,13 +26,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.impl.source.tree.ForeignLeafPsiElement;
-import com.intellij.psi.impl.source.tree.TreeUtil;
 import com.intellij.psi.util.PsiUtilBase;
 import org.intellij.erlang.psi.ErlangClauseBody;
 import org.intellij.erlang.psi.ErlangFile;
 import org.intellij.erlang.psi.ErlangQVar;
 import org.intellij.erlang.psi.ErlangRecursiveVisitor;
+import org.intellij.erlang.psi.impl.ErlangPsiImplUtil;
 import org.intellij.erlang.quickfixes.ErlangQuickFixBase;
 import org.jetbrains.annotations.NotNull;
 
@@ -77,13 +76,13 @@ public class ErlangUnboundVariableInspection extends ErlangInspectionBase {
 
       PsiElement anchor = psiElement;
       while (anchor != null &&
-        !(anchor.getParent() instanceof ErlangClauseBody && !startsWithForeignLeaf(anchor.getParent()))) {
+        !(anchor.getParent() instanceof ErlangClauseBody && !ErlangPsiImplUtil.startsWithForeignLeaf(anchor.getParent()))) {
         anchor = anchor.getParent();
       }
 
       PsiElement parent = anchor != null ? anchor.getParent() : null;
       if (parent == null) return;
-      if (startsWithForeignLeaf(anchor)) anchor = parent.getChildren()[0];
+      if (ErlangPsiImplUtil.startsWithForeignLeaf(anchor)) anchor = parent.getChildren()[0];
       Editor editor = PsiUtilBase.findEditor(anchor);
       if (editor == null) return;
 
@@ -102,10 +101,6 @@ public class ErlangUnboundVariableInspection extends ErlangInspectionBase {
       template.addTextSegment(",\n");
 
       manager.startTemplate(editor, template);
-    }
-
-    private static boolean startsWithForeignLeaf(PsiElement e) {
-      return TreeUtil.findFirstLeaf(e.getNode()) instanceof ForeignLeafPsiElement;
     }
   }
 }

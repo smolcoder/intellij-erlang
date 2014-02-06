@@ -44,6 +44,8 @@ import com.intellij.psi.*;
 import com.intellij.psi.formatter.FormatterUtil;
 import com.intellij.psi.impl.ResolveScopeManager;
 import com.intellij.psi.impl.source.resolve.reference.ReferenceProvidersRegistry;
+import com.intellij.psi.impl.source.tree.ForeignLeafPsiElement;
+import com.intellij.psi.impl.source.tree.TreeUtil;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.LocalSearchScope;
@@ -1172,7 +1174,8 @@ public class ErlangPsiImplUtil {
   @NotNull
   public static String createFunctionClausePresentation(@Nullable ErlangFunctionClause clause) {
     if (clause == null) return "";
-    return clause.getQAtom().getText() + "/" + calculateFunctionClauseArity(clause);
+    PsiElement atom = clause.getQAtom().getAtom();
+    return (atom != null ? atom.getText() : clause.getQAtom().getText()) + "/" + calculateFunctionClauseArity(clause);
   }
 
   @NotNull
@@ -1461,6 +1464,10 @@ public class ErlangPsiImplUtil {
     ErlangQAtom module = moduleExpression == null ? null : moduleExpression.getQAtom();
     int arity = list == null ? -1 : list.getExpressionList().size();
     return new ErlangFunctionReferenceImpl<ErlangQAtom>(atom, module, arity);
+  }
+
+  public static boolean startsWithForeignLeaf(PsiElement e) {
+    return TreeUtil.findFirstLeaf(e.getNode()) instanceof ForeignLeafPsiElement;
   }
 
   public static boolean isWhitespaceOrComment(@NotNull PsiElement element) {
