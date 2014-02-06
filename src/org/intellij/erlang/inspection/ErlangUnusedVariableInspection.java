@@ -16,6 +16,7 @@
 
 package org.intellij.erlang.inspection;
 
+import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElement;
@@ -25,6 +26,7 @@ import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.util.Query;
 import org.intellij.erlang.psi.*;
+import org.intellij.erlang.psi.impl.ErlangPsiImplUtil;
 import org.intellij.erlang.quickfixes.ErlangRenameVariableFix;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,9 +45,13 @@ public class ErlangUnusedVariableInspection extends ErlangInspectionBase {
               PsiReference reference = o.getReference();
               PsiElement resolve = reference != null ? reference.resolve() : null;
               if (resolve == null) {
+                //FIXME References search doesn't find refs attached to foreign leaf elements
                 Query<PsiReference> search = ReferencesSearch.search(o, new LocalSearchScope(functionClause));
                 if (search.findFirst() == null) {
-                  problemsHolder.registerProblem(o, "Unused variable " + "'" + o.getText() + "'", ProblemHighlightType.LIKE_UNUSED_SYMBOL, new ErlangRenameVariableFix());
+                  PsiElement var = o.getVar();
+                  registerProblemForeignTokensAware(problemsHolder, o,
+                    "Unused variable " + "'" + (var != null ? var.getText() : o.getText()) + "'",
+                    ProblemHighlightType.LIKE_UNUSED_SYMBOL, getQuickFixes(o));
                 }
               }
             }
@@ -53,5 +59,10 @@ public class ErlangUnusedVariableInspection extends ErlangInspectionBase {
         });
       }
     }
+  }
+
+  private static LocalQuickFix[] getQuickFixes(PsiElement problemElement) {
+    return ErlangPsiImplUtil.startsWithForeignLeaf(problemElement) ?
+      LocalQuickFix.EMPTY_ARRAY : new LocalQuickFix[]{new ErlangRenameVariableFix()};
   }
 }
