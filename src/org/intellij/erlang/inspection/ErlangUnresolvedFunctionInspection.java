@@ -55,7 +55,8 @@ public class ErlangUnresolvedFunctionInspection extends ErlangInspectionBase {
             ErlangModuleRef moduleRef = ((ErlangGlobalFunctionCallExpression) parent).getModuleRef();
             if (moduleRef != null) {
               if (moduleRef.getQAtom().getMacros() != null) return;
-              String moduleName = moduleRef.getText();
+              PsiElement moduleAtom = moduleRef.getQAtom().getAtom();
+              String moduleName = moduleAtom != null ? moduleAtom.getText() : moduleRef.getText();
               if (ErlangBifTable.isBif(moduleName, name, arity)) return;
               signature = moduleName + ":" + signature;
             }
@@ -65,7 +66,7 @@ public class ErlangUnresolvedFunctionInspection extends ErlangInspectionBase {
             new LocalQuickFix[]{} :
             new LocalQuickFix[]{new ErlangCreateFunctionQuickFix(name, arity)};
 
-          problemsHolder.registerProblem(o.getNameIdentifier(), "Unresolved function " + "'" + signature + "'", qfs);
+          registerProblemForeignTokensAware(problemsHolder, o.getNameIdentifier(), "Unresolved function " + "'" + signature + "'", qfs);
         }
       }
 
@@ -93,7 +94,7 @@ public class ErlangUnresolvedFunctionInspection extends ErlangInspectionBase {
           if (r.getArity() < 0) return; //there is no need to inspect incomplete/erroneous code
           LocalQuickFix[] qfs = PsiTreeUtil.getNextSiblingOfType(what, ErlangModuleRef.class) != null ?
             new LocalQuickFix[]{} : new LocalQuickFix[]{new ErlangCreateFunctionQuickFix(r.getName(), r.getArity())};
-          problemsHolder.registerProblem(target, "Unresolved function " + "'" + r.getSignature() + "'", qfs);
+          registerProblemForeignTokensAware(problemsHolder, target, "Unresolved function " + "'" + r.getSignature() + "'", qfs);
         }
       }
     });

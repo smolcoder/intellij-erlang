@@ -164,7 +164,9 @@ public class ErlangFunctionReferenceImpl<T extends ErlangQAtom> extends PsiPolyV
 
   @NotNull
   private String getModuleFileName() {
-    return myModuleAtom != null ? StringUtil.unquoteString(myModuleAtom.getText()) : "";
+    if (myModuleAtom == null) return "";
+    PsiElement atom = myModuleAtom.getAtom();
+    return StringUtil.unquoteString(atom != null ? atom.getText() : myModuleAtom.getText());
   }
 
   @Override
