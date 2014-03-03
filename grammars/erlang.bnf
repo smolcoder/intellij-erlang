@@ -105,6 +105,8 @@ private form ::=
 private is_app_config ::= &<<isApplicationLanguage>>
 private is_console ::= &<<isConsole>>
 
+//TODO this is what's causing performance issues: 'macros' should not be here
+//TODO consider removing macros from here and also from all the rules which use macros
 q_atom ::= atom | macros_arg | macros {methods=[getReference]}
 q_var ::= '_' | var {
   methods = [getReference processDeclarations getName setName getNameIdentifier getUseScope]
