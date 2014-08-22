@@ -36,7 +36,6 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.*;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.patterns.PatternCondition;
 import com.intellij.patterns.PsiElementPattern;
@@ -56,17 +55,15 @@ import com.intellij.util.containers.ContainerUtil;
 import org.intellij.erlang.*;
 import org.intellij.erlang.bif.ErlangBifDescriptor;
 import org.intellij.erlang.bif.ErlangBifTable;
+import org.intellij.erlang.context.ErlangPathResolver;
 import org.intellij.erlang.completion.ErlangCompletionContributor;
 import org.intellij.erlang.icons.ErlangIcons;
 import org.intellij.erlang.index.ErlangApplicationIndex;
 import org.intellij.erlang.index.ErlangModuleIndex;
 import org.intellij.erlang.parser.ErlangParserUtil;
 import org.intellij.erlang.psi.*;
-import org.intellij.erlang.rebar.util.RebarConfigUtil;
-import org.intellij.erlang.roots.ErlangIncludeDirectoryUtil;
 import org.intellij.erlang.sdk.ErlangSdkRelease;
 import org.intellij.erlang.sdk.ErlangSdkType;
-import org.intellij.erlang.sdk.ErlangSystemUtil;
 import org.intellij.erlang.stubs.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -929,91 +926,22 @@ public class ErlangPsiImplUtil {
 
   @NotNull
   public static List<ErlangFile> getDirectlyIncludedFiles(@NotNull ErlangIncludeLib includeLib, @NotNull ErlangFile erlangFile) {
-    ErlangIncludeString includeString = includeLib.getIncludeStringSafe();
-    String[] split = includeString != null ? StringUtil.unquoteString(includeString.getText()).split("/") : null;
-
-    if (split != null && split.length >= 2) {
-      String libName = split[0];
-      String relativePath = StringUtil.join(split, 1, split.length, "/");
-      Project project = includeLib.getProject();
-      VirtualFile appDir = ErlangApplicationIndex.getApplicationDirectoryByName(libName, GlobalSearchScope.allScope(project));
-      ErlangFile includedFile = getRelativeErlangFile(project, relativePath, appDir);
-      if (includedFile != null) {
-        return ContainerUtil.newSmartList(includedFile);
-      }
-    }
-    //either include_lib does not specify a library, or it was not found, falling back to 'include' behaviour.
-    return getDirectlyIncludedFiles(includeString, erlangFile);
+    return getDirectlyIncludedFiles(includeLib.getIncludeStringSafe(), erlangFile, true);
   }
 
   @NotNull
   public static List<ErlangFile> getDirectlyIncludedFiles(@NotNull ErlangInclude include, @NotNull ErlangFile erlangFile) {
-    ErlangIncludeString includeString = include.getIncludeStringSafe();
-    return getDirectlyIncludedFiles(includeString, erlangFile);
+    return getDirectlyIncludedFiles(include.getIncludeStringSafe(), erlangFile, false);
   }
 
-  @NotNull
-  public static List<ErlangFile> getDirectlyIncludedFiles(@Nullable ErlangIncludeString includeString, @NotNull ErlangFile erlangFile) {
-    if (includeString == null) return ContainerUtil.emptyList();
-    VirtualFile containingVirtualFile = erlangFile.getOriginalFile().getVirtualFile();
-    VirtualFile parent = containingVirtualFile != null ? containingVirtualFile.getParent() : null;
-    String relativePath = StringUtil.unquoteString(includeString.getText());
-    Project project = erlangFile.getProject();
-    ErlangFile relativeToDirectParent = getRelativeErlangFile(project, relativePath, parent);
-    if (relativeToDirectParent != null) return ContainerUtil.newSmartList(relativeToDirectParent);
-    //relative to direct parent include file was not found
-    //let's search in include directories
-    if (containingVirtualFile != null) {
-      Module module = ModuleUtilCore.findModuleForFile(containingVirtualFile, project);
-      for (VirtualFile includeDir : ErlangIncludeDirectoryUtil.getIncludeDirectories(module)) {
-        ErlangFile includedFile = getRelativeErlangFile(project, relativePath, includeDir);
-        if (includedFile != null) return ContainerUtil.newSmartList(includedFile);
-      }
-    }
-    //TODO consider providing source roots functionality to small IDEs
-    if (ErlangSystemUtil.isSmallIde()) {
-      VirtualFile appRoot = getContainingOtpAppRoot(project, parent);
-      return getDirectlyIncludedFilesForSmallIde(project, relativePath, appRoot);
-    }
-    return ContainerUtil.emptyList();
-  }
-
-  @NotNull
-  private static List<ErlangFile> getDirectlyIncludedFilesForSmallIde(@NotNull Project project, @NotNull String includeStringPath, @Nullable VirtualFile otpAppRoot) {
-    if (otpAppRoot == null) return ContainerUtil.emptyList();
-    VirtualFile otpIncludeDirectory = otpAppRoot.findChild("include");
-    ErlangFile relativeToOtpIncludeDirectory = getRelativeErlangFile(project, includeStringPath, otpIncludeDirectory);
-    if (relativeToOtpIncludeDirectory != null) return ContainerUtil.newSmartList(relativeToOtpIncludeDirectory);
-    //we haven't found it in 'include' directory, let's try include paths listed in rebar.config
-    ErlangFile rebarConfigPsi = RebarConfigUtil.getRebarConfig(project, otpAppRoot);
-    if (rebarConfigPsi != null) {
-      for(String includePath : ContainerUtil.reverse(RebarConfigUtil.getIncludePaths(rebarConfigPsi))) {
-        VirtualFile includePathVirtualFile = VfsUtilCore.findRelativeFile(includePath, otpAppRoot);
-        ErlangFile includedFile = getRelativeErlangFile(project, includeStringPath, includePathVirtualFile);
-        if (includedFile != null) return ContainerUtil.newSmartList(includedFile);
-      }
-    }
-    return ContainerUtil.emptyList();
-  }
-
-  @Nullable
-  public static VirtualFile getContainingOtpAppRoot(@NotNull Project project, @Nullable final VirtualFile file) {
-    if (file == null) return null;
-    List<VirtualFile> allOtpAppRoots = ErlangApplicationIndex.getAllApplicationDirectories(project, GlobalSearchScope.allScope(project));
-    List<VirtualFile> containingOtpAppRoots = ContainerUtil.filter(allOtpAppRoots, new Condition<VirtualFile>() {
-      @Override
-      public boolean value(@NotNull VirtualFile appRoot) {
-        return VfsUtilCore.isAncestor(appRoot, file, true);
-      }
-    });
-    //sort it in order to have longest path first
-    ContainerUtil.sort(containingOtpAppRoots, new Comparator<VirtualFile>() {
-      @Override
-      public int compare(@NotNull VirtualFile o1, @NotNull VirtualFile o2) {
-        return o2.getPath().length() - o1.getPath().length();
-      }
-    });
-    return ContainerUtil.getFirstItem(containingOtpAppRoots);
+  private static List<ErlangFile> getDirectlyIncludedFiles(@Nullable ErlangIncludeString includeString, @NotNull ErlangFile erlangFile, boolean isIncludeLib) {
+    String includePath = includeString != null ? StringUtil.unquoteString(includeString.getText()) : null;
+    VirtualFile containingFile = erlangFile.getOriginalFile().getVirtualFile();
+    VirtualFile includedFile = isIncludeLib ?
+      ErlangPathResolver.resolveIncludeLib(erlangFile.getProject(), containingFile, includePath) :
+      ErlangPathResolver.resolveInclude(erlangFile.getProject(), containingFile, includePath);
+    PsiFile file = includedFile != null ? PsiManager.getInstance(erlangFile.getProject()).findFile(includedFile) : null;
+    return ContainerUtil.createMaybeSingletonList(file instanceof ErlangFile ? (ErlangFile) file : null);
   }
 
   @NotNull
@@ -1065,14 +993,6 @@ public class ErlangPsiImplUtil {
     ErlangQAtom qAtom = expression != null ? expression.getQAtom() : null;
     ErlangAtom atom = qAtom != null ? qAtom.getAtom() : null;
     return atom != null ? atom.getName() : null;
-  }
-
-  @Nullable
-  private static ErlangFile getRelativeErlangFile(@NotNull Project project, @NotNull String relativePath, @Nullable VirtualFile parent) {
-    VirtualFile relativeFile = VfsUtilCore.findRelativeFile(relativePath, parent);
-    if (relativeFile == null) return null;
-    PsiFile file = PsiManager.getInstance(project).findFile(relativeFile);
-    return file instanceof ErlangFile ? (ErlangFile) file : null;
   }
 
   @NotNull
