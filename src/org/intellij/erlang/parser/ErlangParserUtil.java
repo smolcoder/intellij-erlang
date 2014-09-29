@@ -29,9 +29,13 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import gnu.trove.TObjectIntHashMap;
 import org.intellij.erlang.ErlangFileType;
+import org.intellij.erlang.ErlangParserDefinition;
 import org.intellij.erlang.ErlangTypes;
+import org.intellij.erlang.lexer.ErlangForeignLeafType;
+import org.intellij.erlang.lexer.ErlangInterimTokenTypes;
 import org.intellij.erlang.psi.impl.ErlangPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ErlangParserUtil extends GeneratedParserUtilBase {
   public static boolean isApplicationLanguage(PsiBuilder builder_, @SuppressWarnings("UnusedParameters") int level) {
@@ -88,11 +92,11 @@ public class ErlangParserUtil extends GeneratedParserUtilBase {
 
   @SuppressWarnings("MethodOverridesStaticMethodOfSuperclass")
   public static PsiBuilder adapt_builder_(IElementType root, PsiBuilder builder, PsiParser parser, TokenSet[] tokenSets) {
-    PsiBuilder result = GeneratedParserUtilBase.adapt_builder_(root, builder, parser, tokenSets);
-    ErrorState.get(result).altMode = true;
-    return result;
+    ErrorState state = new ErrorState();
+    ErrorState.initState(state, builder, root, tokenSets);
+    return new Builder(builder, state, parser);
   }
-  
+
   @SuppressWarnings("UnusedParameters")
   public static boolean eofOrSpace(PsiBuilder builder_, int level_) {
     if (builder_.eof()) return true;
@@ -103,5 +107,111 @@ public class ErlangParserUtil extends GeneratedParserUtilBase {
       return true;
     }
     return false;
+  }
+
+  public static boolean consumeMacroBody(PsiBuilder builder_, int level_) {
+    if (builder_.getTokenType() != ErlangInterimTokenTypes.ERL_MACRO_BODY_BEGIN) return false;
+    PsiBuilder.Marker beforeMacroBody = builder_.mark();
+    builder_.advanceLexer();
+    while (builder_.getTokenType() != ErlangInterimTokenTypes.ERL_MACRO_BODY_END
+      && builder_.getTokenType() != null) {
+      if (!consumeToken(builder_, builder_.getTokenType())) {
+        beforeMacroBody.rollbackTo();
+        return false;
+      }
+    }
+    beforeMacroBody.drop();
+    builder_.advanceLexer();
+    return true;
+  }
+
+  public static boolean macroCallArgumentsList(PsiBuilder builder, int level) {
+    Builder b = (Builder) builder;
+    b.increaseMacroCallArgumentsLevel();
+    boolean argumentListParsed = ErlangParser.argument_list(builder, level + 1);
+    b.decreaseMacroCallArgumentsLevel();
+    return argumentListParsed;
+  }
+
+  @SuppressWarnings("MethodOverridesStaticMethodOfSuperclass")
+  public static boolean recursion_guard_(PsiBuilder builder_, int level_, String funcName_) {
+    if (!GeneratedParserUtilBase.recursion_guard_(builder_, level_, funcName_)) {
+      return false;
+    }
+    Builder b = (Builder) builder_;
+    if (b.getMacroCallArgumentsLevel() == 0 &&
+      !funcName_.equals("macros") && !funcName_.startsWith("macros_call") && !funcName_.contains("recover")) {
+      consumeSubstitutedMacroCall(b, level_);
+    }
+    return true;
+  }
+
+  private static void consumeSubstitutedMacroCall(Builder builder, int level) {
+    if (!nextTokenIsFast(builder, ErlangTypes.ERL_QMARK)) return;
+    int macroCallSubstitutionDepth = builder.getNextTokenSubstitutionDepth();
+    PsiBuilder.Marker beforeMacroCallParsed = builder.mark();
+    boolean macroCallParsed = ErlangParser.macros(builder, level);
+    boolean macroWasSubstituted = macroCallSubstitutionDepth + 1 == builder.getNextTokenSubstitutionDepth();
+    if (!macroCallParsed || !macroWasSubstituted) {
+      beforeMacroCallParsed.rollbackTo();
+    }
+    else {
+      beforeMacroCallParsed.drop();
+    }
+  }
+
+  @SuppressWarnings("ClassNameSameAsAncestorName")
+  public static class Builder extends GeneratedParserUtilBase.Builder {
+    private int myMacroCallArgumentsLevel;
+
+    public Builder(PsiBuilder builder, GeneratedParserUtilBase.ErrorState state, PsiParser parser) {
+      super(builder, state, parser);
+    }
+
+    @Nullable
+    @Override
+    public IElementType getTokenType() {
+      IElementType tokenType = getWrappedTokenType();
+      return unwrap(tokenType);
+    }
+
+    @Nullable
+    public IElementType getWrappedTokenType() {
+      skipForeignLeafWhitespace();
+      return super.getTokenType();
+    }
+
+    public int getNextTokenSubstitutionDepth() {
+      IElementType wrappedTokenType = getWrappedTokenType();
+      return wrappedTokenType instanceof ErlangForeignLeafType ?
+        ((ErlangForeignLeafType) wrappedTokenType).getSubstitutionDepth() : 1;
+    }
+
+    public int getMacroCallArgumentsLevel() {
+      return myMacroCallArgumentsLevel;
+    }
+
+    public void increaseMacroCallArgumentsLevel() {
+      myMacroCallArgumentsLevel++;
+    }
+
+    public void decreaseMacroCallArgumentsLevel() {
+      myMacroCallArgumentsLevel--;
+    }
+
+    private void skipForeignLeafWhitespace() {
+      IElementType tt;
+      while ((tt = super.getTokenType()) != null && ErlangParserDefinition.WS.contains(unwrap(tt))) {
+        advanceLexer();
+      }
+    }
+
+    @Nullable
+    private static IElementType unwrap(@Nullable IElementType tokenType) {
+      while (tokenType instanceof ErlangForeignLeafType) {
+        tokenType = ((ErlangForeignLeafType) tokenType).getDelegate();
+      }
+      return tokenType;
+    }
   }
 }

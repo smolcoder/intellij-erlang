@@ -18,10 +18,12 @@ package org.intellij.erlang.inspection;
 
 import com.intellij.codeInsight.daemon.impl.actions.AbstractSuppressByNoInspectionCommentFix;
 import com.intellij.codeInspection.*;
+import com.intellij.lang.ASTNode;
 import com.intellij.lang.Commenter;
 import com.intellij.lang.LanguageCommenters;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
+import com.intellij.psi.impl.source.tree.ForeignLeafPsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.ObjectUtils;
@@ -83,12 +85,12 @@ abstract public class ErlangInspectionBase extends LocalInspectionTool implement
     if (parent == null) return false;
     return isSuppressedForElement(parent);
   }
-  
+
   private boolean isSuppressedForElement(@Nullable PsiElement element) {
     if (element == null) return false;
     Commenter commenter = LanguageCommenters.INSTANCE.forLanguage(ErlangLanguage.INSTANCE);
     String prefix = ObjectUtils.notNull(commenter == null ? null : commenter.getLineCommentPrefix(), "");
-    
+
     PsiElement prevSibling = element.getPrevSibling();
     if (prevSibling == null) {
       PsiElement parent = element.getParent();
@@ -111,9 +113,10 @@ abstract public class ErlangInspectionBase extends LocalInspectionTool implement
 
   private boolean isSuppressedInComment(String commentText) {
     Matcher m = SUPPRESS_PATTERN.matcher(commentText);
+    //noinspection ConstantConditions
     return m.matches() && SuppressionUtil.isInspectionToolIdMentioned(m.group(1), getSuppressId());
   }
-  
+
   private String getSuppressId() {
     return getShortName().replace("Inspection", "");
   }
@@ -126,7 +129,7 @@ abstract public class ErlangInspectionBase extends LocalInspectionTool implement
       setText(text);
       myContainerClass = containerClass;
     }
-  
+
     @Override
     @Nullable
     protected PsiElement getContainer(PsiElement context) {
@@ -143,5 +146,45 @@ abstract public class ErlangInspectionBase extends LocalInspectionTool implement
       PsiElement spaceFromText = PsiParserFacade.SERVICE.getInstance(project).createWhiteSpaceFromText("\n");
       where.getParent().addAfter(spaceFromText, where);
     }
+  }
+
+  protected static void registerProblemForeignTokensAware(ProblemsHolder problemsHolder, @NotNull PsiElement psiElement,
+                                                          @NotNull String descriptionTemplate, LocalQuickFix... fixes) {
+    registerProblemForeignTokensAware(problemsHolder, psiElement, descriptionTemplate, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, fixes);
+  }
+
+  protected static void registerProblemForeignTokensAware(ProblemsHolder problemsHolder,
+                                                          @NotNull PsiElement psiElement,
+                                                          @NotNull String descriptionTemplate,
+                                                          ProblemHighlightType highlightType,
+                                                          LocalQuickFix... fixes) {
+    PsiElement targetElement = rightmostNonForeignElementBefore(psiElement);
+    if (targetElement == null) return;
+    ProblemDescriptor problemDescriptor = targetElement != psiElement ?
+      new ErlangMacroSubstitutionProblemDescriptor(psiElement, targetElement, descriptionTemplate, problemsHolder.isOnTheFly(), fixes, highlightType) :
+      problemsHolder.getManager().createProblemDescriptor(targetElement, descriptionTemplate, problemsHolder.isOnTheFly(), fixes, highlightType);
+    problemsHolder.registerProblem(problemDescriptor);
+  }
+
+  @Nullable
+  private static PsiElement rightmostNonForeignElementBefore(PsiElement psiElement) {
+    if (!isMadeOfForeignTokens(psiElement)) return psiElement;
+    PsiElement prevSibling = psiElement.getPrevSibling();
+    return rightmostNonForeignElementBefore(prevSibling == null ? psiElement.getParent() : prevSibling);
+  }
+
+  private static boolean isMadeOfForeignTokens(@Nullable PsiElement psiElement) {
+    return psiElement != null && isMadeOfForeignTokens(psiElement.getNode());
+  }
+
+  private static boolean isMadeOfForeignTokens(@Nullable ASTNode node) {
+    if (node == null) return false;
+    if (node instanceof ForeignLeafPsiElement) return true;
+    for (ASTNode child : node.getChildren(null)) {
+      if (isMadeOfForeignTokens(child)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

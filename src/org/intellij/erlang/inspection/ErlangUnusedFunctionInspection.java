@@ -47,7 +47,7 @@ public class ErlangUnusedFunctionInspection extends ErlangInspectionBase {
 
     for (ErlangFunction function : erlangFile.getFunctions()) {
       if (isUnusedFunction(erlangFile, function)) {
-        problemsHolder.registerProblem(function.getNameIdentifier(),
+        registerProblemForeignTokensAware(problemsHolder, function.getNameIdentifier(),
           "Unused function " + "'" + function.getName() + "/" + function.getArity() + "'",
           ProblemHighlightType.LIKE_UNUSED_SYMBOL,
           new ErlangRemoveFunctionFix(),

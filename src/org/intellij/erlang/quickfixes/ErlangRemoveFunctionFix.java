@@ -18,7 +18,9 @@ package org.intellij.erlang.quickfixes;
 
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.intellij.erlang.inspection.ErlangMacroSubstitutionProblemDescriptor;
 import org.intellij.erlang.psi.ErlangFunction;
 import org.intellij.erlang.psi.ErlangSpecification;
 import org.intellij.erlang.psi.impl.ErlangPsiImplUtil;
@@ -33,7 +35,17 @@ public class ErlangRemoveFunctionFix extends ErlangQuickFixBase {
 
   @Override
   public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
-    ErlangFunction function = PsiTreeUtil.getParentOfType(descriptor.getPsiElement(), ErlangFunction.class);
+    boolean problemAfterMacroSubstitution = descriptor instanceof ErlangMacroSubstitutionProblemDescriptor;
+    if (problemAfterMacroSubstitution) {
+      removeFunctionAndSpec(((ErlangMacroSubstitutionProblemDescriptor) descriptor).getRealProblemElement());
+      descriptor.getPsiElement().delete();
+    } else {
+      removeFunctionAndSpec(descriptor.getPsiElement());
+    }
+  }
+
+  private static void removeFunctionAndSpec(@NotNull PsiElement functionNameElement) {
+    ErlangFunction function = PsiTreeUtil.getParentOfType(functionNameElement, ErlangFunction.class);
     if (function != null) {
       ErlangSpecification specification = ErlangPsiImplUtil.getSpecification(function);
       if (specification != null) {
@@ -42,4 +54,5 @@ public class ErlangRemoveFunctionFix extends ErlangQuickFixBase {
       function.delete();
     }
   }
+
 }

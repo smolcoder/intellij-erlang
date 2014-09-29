@@ -584,22 +584,13 @@ ERL_FILE
       PsiElement(var)('HERE')
     PsiElement(,)(',')
     ERL_MACROS_BODY
-      ERL_TUPLE_EXPRESSION
-        PsiElement({)('{')
-        ERL_MAX_EXPRESSION
-          ERL_Q_ATOM
-            ERL_MACROS
-              PsiElement(?)('?')
-              ERL_MACROS_NAME
-                PsiElement(var)('MODULE')
-        PsiElement(,)(',')
-        ERL_MAX_EXPRESSION
-          ERL_Q_ATOM
-            ERL_MACROS
-              PsiElement(?)('?')
-              ERL_MACROS_NAME
-                PsiElement(var)('LINE')
-        PsiElement(})('}')
+      PsiElement({)('{')
+      PsiElement(?)('?')
+      PsiElement(var)('MODULE')
+      PsiElement(,)(',')
+      PsiElement(?)('?')
+      PsiElement(var)('LINE')
+      PsiElement(})('}')
     PsiElement())(')')
     PsiElement(.)('.')
   ERL_MACROS_DEFINITION
@@ -627,66 +618,34 @@ ERL_FILE
       PsiElement())(')')
     PsiElement(,)(',')
     ERL_MACROS_BODY
-      ERL_BEGIN_END_EXPRESSION
-        PsiElement(begin)('begin')
-        ERL_BEGIN_END_BODY
-          ERL_FUNCTION_CALL_EXPRESSION
-            ERL_Q_ATOM
-              ERL_ATOM
-                PsiElement(atom_name)('rpt_error')
-            ERL_ARGUMENT_LIST
-              PsiElement(()('(')
-              ERL_MAX_EXPRESSION
-                ERL_Q_VAR
-                  PsiElement(var)('R')
-              PsiElement(,)(',')
-              ERL_MAX_EXPRESSION
-                ERL_Q_VAR
-                  PsiElement(var)('F')
-              PsiElement(,)(',')
-              ERL_MAX_EXPRESSION
-                ERL_Q_VAR
-                  PsiElement(var)('I')
-              PsiElement())(')')
-          PsiElement(,)(',')
-          ERL_FUNCTION_CALL_EXPRESSION
-            ERL_Q_ATOM
-              ERL_ATOM
-                PsiElement(atom_name)('throw')
-            ERL_ARGUMENT_LIST
-              PsiElement(()('(')
-              ERL_TUPLE_EXPRESSION
-                PsiElement({)('{')
-                ERL_MAX_EXPRESSION
-                  ERL_Q_ATOM
-                    ERL_ATOM
-                      PsiElement(atom_name)('error')
-                PsiElement(,)(',')
-                ERL_FUNCTION_CALL_EXPRESSION
-                  ERL_Q_ATOM
-                    ERL_ATOM
-                      PsiElement(atom_name)('get_pos')
-                  ERL_ARGUMENT_LIST
-                    PsiElement(()('(')
-                    ERL_MAX_EXPRESSION
-                      ERL_Q_VAR
-                        PsiElement(var)('I')
-                    PsiElement())(')')
-                PsiElement(,)(',')
-                ERL_TUPLE_EXPRESSION
-                  PsiElement({)('{')
-                  ERL_MAX_EXPRESSION
-                    ERL_Q_ATOM
-                      ERL_ATOM
-                        PsiElement(atom_name)('unknown')
-                  PsiElement(,)(',')
-                  ERL_MAX_EXPRESSION
-                    ERL_Q_VAR
-                      PsiElement(var)('R')
-                  PsiElement(})('}')
-                PsiElement(})('}')
-              PsiElement())(')')
-        PsiElement(end)('end')
+      PsiElement(begin)('begin')
+      PsiElement(atom_name)('rpt_error')
+      PsiElement(()('(')
+      PsiElement(var)('R')
+      PsiElement(,)(',')
+      PsiElement(var)('F')
+      PsiElement(,)(',')
+      PsiElement(var)('I')
+      PsiElement())(')')
+      PsiElement(,)(',')
+      PsiElement(atom_name)('throw')
+      PsiElement(()('(')
+      PsiElement({)('{')
+      PsiElement(atom_name)('error')
+      PsiElement(,)(',')
+      PsiElement(atom_name)('get_pos')
+      PsiElement(()('(')
+      PsiElement(var)('I')
+      PsiElement())(')')
+      PsiElement(,)(',')
+      PsiElement({)('{')
+      PsiElement(atom_name)('unknown')
+      PsiElement(,)(',')
+      PsiElement(var)('R')
+      PsiElement(})('}')
+      PsiElement(})('}')
+      PsiElement())(')')
+      PsiElement(end)('end')
     PsiElement())(')')
     PsiElement(.)('.')
   ERL_TYPE_DEFINITION
@@ -2410,30 +2369,108 @@ ERL_FILE
                 PsiElement(})('}')
             ERL_CLAUSE_BODY
               PsiElement(->)('->')
-              ERL_FUNCTION_CALL_EXPRESSION
-                ERL_Q_ATOM
-                  ERL_MACROS
-                    PsiElement(?)('?')
-                    ERL_MACROS_NAME
-                      PsiElement(var)('ERROR')
-                ERL_ARGUMENT_LIST
-                  PsiElement(()('(')
-                  ERL_MAX_EXPRESSION
+              ERL_MACROS
+                PsiElement(?)('?')
+                ERL_MACROS_NAME
+                  PsiElement(var)('ERROR')
+                ERL_MACRO_CALL_ARGUMENT_LIST
+                  ERL_ARGUMENT_LIST
+                    PsiElement(()('(')
+                    ERL_MAX_EXPRESSION
+                      ERL_Q_ATOM
+                        ERL_ATOM
+                          PsiElement(atom_name)('invalid_record_exports')
+                    PsiElement(,)(',')
+                    ERL_MAX_EXPRESSION
+                      ERL_Q_ATOM
+                        ERL_MACROS
+                          PsiElement(?)('?')
+                          ERL_MACROS_NAME
+                            PsiElement(var)('HERE')
+                    PsiElement(,)(',')
+                    ERL_MAX_EXPRESSION
+                      ERL_Q_VAR
+                        PsiElement(var)('Bad')
+                    PsiElement())(')')
+              ERL_BEGIN_END_EXPRESSION
+                ForeignLeaf(begin: begin)('begin')
+                ERL_BEGIN_END_BODY
+                  ERL_FUNCTION_CALL_EXPRESSION
                     ERL_Q_ATOM
                       ERL_ATOM
-                        PsiElement(atom_name)('invalid_record_exports')
-                  PsiElement(,)(',')
-                  ERL_MAX_EXPRESSION
-                    ERL_Q_ATOM
+                        ForeignLeaf(atom_name: rpt_error)('rpt_error')
+                    ERL_ARGUMENT_LIST
+                      ForeignLeaf((: ()('(')
+                      ERL_MAX_EXPRESSION
+                        ERL_Q_ATOM
+                          ERL_ATOM
+                            ForeignLeaf(atom_name: invalid_record_exports)('invalid_record_exports')
+                      ForeignLeaf(,: ,)(',')
                       ERL_MACROS
-                        PsiElement(?)('?')
+                        ForeignLeaf(?: ?)('?')
                         ERL_MACROS_NAME
-                          PsiElement(var)('HERE')
-                  PsiElement(,)(',')
-                  ERL_MAX_EXPRESSION
-                    ERL_Q_VAR
-                      PsiElement(var)('Bad')
-                  PsiElement())(')')
+                          ForeignLeaf(var: HERE)('HERE')
+                      ERL_TUPLE_EXPRESSION
+                        ForeignLeaf({: {)('{')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_ATOM
+                            ERL_MACROS
+                              ForeignLeaf(?: ?)('?')
+                              ERL_MACROS_NAME
+                                ForeignLeaf(var: MODULE)('MODULE')
+                        ForeignLeaf(,: ,)(',')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_ATOM
+                            ERL_MACROS
+                              ForeignLeaf(?: ?)('?')
+                              ERL_MACROS_NAME
+                                ForeignLeaf(var: LINE)('LINE')
+                        ForeignLeaf(}: })('}')
+                      ForeignLeaf(,: ,)(',')
+                      ERL_MAX_EXPRESSION
+                        ERL_Q_VAR
+                          ForeignLeaf(var: Bad)('Bad')
+                      ForeignLeaf(): ))(')')
+                  ForeignLeaf(,: ,)(',')
+                  ERL_FUNCTION_CALL_EXPRESSION
+                    ERL_Q_ATOM
+                      ERL_ATOM
+                        ForeignLeaf(atom_name: throw)('throw')
+                    ERL_ARGUMENT_LIST
+                      ForeignLeaf((: ()('(')
+                      ERL_TUPLE_EXPRESSION
+                        ForeignLeaf({: {)('{')
+                        ERL_MAX_EXPRESSION
+                          ERL_Q_ATOM
+                            ERL_ATOM
+                              ForeignLeaf(atom_name: error)('error')
+                        ForeignLeaf(,: ,)(',')
+                        ERL_FUNCTION_CALL_EXPRESSION
+                          ERL_Q_ATOM
+                            ERL_ATOM
+                              ForeignLeaf(atom_name: get_pos)('get_pos')
+                          ERL_ARGUMENT_LIST
+                            ForeignLeaf((: ()('(')
+                            ERL_MAX_EXPRESSION
+                              ERL_Q_VAR
+                                ForeignLeaf(var: Bad)('Bad')
+                            ForeignLeaf(): ))(')')
+                        ForeignLeaf(,: ,)(',')
+                        ERL_TUPLE_EXPRESSION
+                          ForeignLeaf({: {)('{')
+                          ERL_MAX_EXPRESSION
+                            ERL_Q_ATOM
+                              ERL_ATOM
+                                ForeignLeaf(atom_name: unknown)('unknown')
+                          ForeignLeaf(,: ,)(',')
+                          ERL_MAX_EXPRESSION
+                            ERL_Q_ATOM
+                              ERL_ATOM
+                                ForeignLeaf(atom_name: invalid_record_exports)('invalid_record_exports')
+                          ForeignLeaf(}: })('}')
+                        ForeignLeaf(}: })('}')
+                      ForeignLeaf(): ))(')')
+                ForeignLeaf(end: end)('end')
           PsiElement(end)('end')
         PsiElement(,)(',')
         ERL_ASSIGNMENT_EXPRESSION

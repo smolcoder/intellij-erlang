@@ -3,8 +3,10 @@ package org.intellij.erlang.parser;
 
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilder.Marker;
+import com.intellij.openapi.diagnostic.Logger;
 import static org.intellij.erlang.ErlangTypes.*;
 import static org.intellij.erlang.parser.ErlangParserUtil.*;
+import com.intellij.lang.LighterASTNode;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.tree.TokenSet;
@@ -13,12 +15,9 @@ import com.intellij.lang.PsiParser;
 @SuppressWarnings({"SimplifiableIfStatement", "UnusedAssignment"})
 public class ErlangParser implements PsiParser {
 
-  public ASTNode parse(IElementType root_, PsiBuilder builder_) {
-    parse_only_(root_, builder_);
-    return builder_.getTreeBuilt();
-  }
+  public static final Logger LOG_ = Logger.getInstance("org.intellij.erlang.parser.ErlangParser");
 
-  public void parse_only_(IElementType root_, PsiBuilder builder_) {
+  public ASTNode parse(IElementType root_, PsiBuilder builder_) {
     boolean result_;
     builder_ = adapt_builder_(root_, builder_, this, EXTENDS_SETS_);
     Marker marker_ = enter_section_(builder_, 0, _COLLAPSE_, null);
@@ -232,6 +231,12 @@ public class ErlangParser implements PsiParser {
     else if (root_ == ERL_LIST_OP_EXPRESSION) {
       result_ = expression(builder_, 0, 5);
     }
+    else if (root_ == ERL_MACRO_CALL_ARGUMENT_LIST) {
+      result_ = macro_call_argument_list(builder_, 0);
+    }
+    else if (root_ == ERL_MACRO_FORM) {
+      result_ = macro_form(builder_, 0);
+    }
     else if (root_ == ERL_MACROS) {
       result_ = macros(builder_, 0);
     }
@@ -240,9 +245,6 @@ public class ErlangParser implements PsiParser {
     }
     else if (root_ == ERL_MACROS_BODY) {
       result_ = macros_body(builder_, 0);
-    }
-    else if (root_ == ERL_MACROS_CALL) {
-      result_ = macros_call(builder_, 0);
     }
     else if (root_ == ERL_MACROS_DEFINITION) {
       result_ = macros_definition(builder_, 0);
@@ -401,15 +403,14 @@ public class ErlangParser implements PsiParser {
       result_ = parse_root_(root_, builder_, 0);
     }
     exit_section_(builder_, 0, marker_, root_, result_, true, TRUE_CONDITION);
+    return builder_.getTreeBuilt();
   }
 
-  protected boolean parse_root_(IElementType root_, PsiBuilder builder_, int level_) {
+  protected boolean parse_root_(final IElementType root_, final PsiBuilder builder_, final int level_) {
     return forms(builder_, level_ + 1);
   }
 
   public static final TokenSet[] EXTENDS_SETS_ = new TokenSet[] {
-    create_token_set_(ERL_ARGUMENT_DEFINITION, ERL_ARGUMENT_LIST),
-    create_token_set_(ERL_ATOM_ATTRIBUTE, ERL_BINARY_EXPRESSION),
     create_token_set_(ERL_ADDITIVE_EXPRESSION, ERL_ANDALSO_EXPRESSION, ERL_ANONYMOUS_CALL_EXPRESSION, ERL_ASSIGNMENT_EXPRESSION,
       ERL_BEGIN_END_EXPRESSION, ERL_BINARY_EXPRESSION, ERL_CASE_EXPRESSION, ERL_CATCH_EXPRESSION,
       ERL_COLON_QUALIFIED_EXPRESSION, ERL_COMP_OP_EXPRESSION, ERL_CONFIG_CALL_EXPRESSION, ERL_CONFIG_EXPRESSION,
@@ -419,13 +420,9 @@ public class ErlangParser implements PsiParser {
       ERL_MULTIPLICATIVE_EXPRESSION, ERL_ORELSE_EXPRESSION, ERL_PARENTHESIZED_EXPRESSION, ERL_PREFIX_EXPRESSION,
       ERL_QUALIFIED_EXPRESSION, ERL_RECEIVE_EXPRESSION, ERL_RECORD_EXPRESSION, ERL_SEND_EXPRESSION,
       ERL_STRING_LITERAL, ERL_TRY_EXPRESSION, ERL_TUPLE_EXPRESSION),
-    create_token_set_(ERL_LIST_COMPREHENSION, ERL_LIST_EXPRESSION),
-    create_token_set_(ERL_MAP_EXPRESSION, ERL_MAX_EXPRESSION),
-    create_token_set_(ERL_RECORD_EXPRESSION, ERL_RECORD_FIELD),
     create_token_set_(ERL_BINARY_TYPE, ERL_BIN_BASE_TYPE, ERL_BIN_UNIT_TYPE, ERL_FIELD_TYPE,
       ERL_FUN_TYPE, ERL_FUN_TYPE_100_T, ERL_INT_TYPE, ERL_MAP_ENTRY_TYPE,
-      ERL_MAP_TYPE, ERL_RECORD_LIKE_TYPE, ERL_TOP_TYPE_100_T, ERL_TUPLE_EXPRESSION,
-      ERL_TYPE),
+      ERL_MAP_TYPE, ERL_RECORD_LIKE_TYPE, ERL_TOP_TYPE_100_T, ERL_TYPE),
   };
 
   /* ********************************************************** */
@@ -2006,7 +2003,7 @@ public class ErlangParser implements PsiParser {
   //   | macros_definition
   //   | type_definition
   //   | attribute
-  //   | macros_call // macros support
+  //   | macro_form // macros support
   //   | rule
   //   | !<<eofOrSpace>>
   static boolean form(PsiBuilder builder_, int level_) {
@@ -2021,7 +2018,7 @@ public class ErlangParser implements PsiParser {
     if (!result_) result_ = macros_definition(builder_, level_ + 1);
     if (!result_) result_ = type_definition(builder_, level_ + 1);
     if (!result_) result_ = attribute(builder_, level_ + 1);
-    if (!result_) result_ = macros_call(builder_, level_ + 1);
+    if (!result_) result_ = macro_form(builder_, level_ + 1);
     if (!result_) result_ = rule(builder_, level_ + 1);
     if (!result_) result_ = form_10(builder_, level_ + 1);
     exit_section_(builder_, marker_, null, result_);
@@ -3157,7 +3154,74 @@ public class ErlangParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // '?' macros_name
+  // <<macroCallArgumentsList>>
+  public static boolean macro_call_argument_list(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "macro_call_argument_list")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<macro call argument list>");
+    result_ = macroCallArgumentsList(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, ERL_MACRO_CALL_ARGUMENT_LIST, result_, false, null);
+    return result_;
+  }
+
+  /* ********************************************************** */
+  // &('?') macros &not_function_definition
+  public static boolean macro_form(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "macro_form")) return false;
+    boolean result_;
+    boolean pinned_;
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<macro form>");
+    result_ = macro_form_0(builder_, level_ + 1);
+    pinned_ = result_; // pin = 1
+    result_ = result_ && report_error_(builder_, macros(builder_, level_ + 1));
+    result_ = result_ && macro_form_2(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, ERL_MACRO_FORM, result_, pinned_, macro_form_recover_parser_);
+    return result_ || pinned_;
+  }
+
+  // &('?')
+  private static boolean macro_form_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "macro_form_0")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_, level_, _AND_, null);
+    result_ = macro_form_0_0(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, null, result_, false, null);
+    return result_;
+  }
+
+  // ('?')
+  private static boolean macro_form_0_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "macro_form_0_0")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
+    result_ = consumeToken(builder_, ERL_QMARK);
+    exit_section_(builder_, marker_, null, result_);
+    return result_;
+  }
+
+  // &not_function_definition
+  private static boolean macro_form_2(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "macro_form_2")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_, level_, _AND_, null);
+    result_ = not_function_definition(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, null, result_, false, null);
+    return result_;
+  }
+
+  /* ********************************************************** */
+  // !'.'
+  static boolean macro_form_recover(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "macro_form_recover")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_, level_, _NOT_, null);
+    result_ = !consumeToken(builder_, ERL_DOT);
+    exit_section_(builder_, level_, marker_, null, result_, false, null);
+    return result_;
+  }
+
+  /* ********************************************************** */
+  // '?' macros_name macro_call_argument_list?
   public static boolean macros(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "macros")) return false;
     if (!nextTokenIs(builder_, ERL_QMARK)) return false;
@@ -3166,9 +3230,17 @@ public class ErlangParser implements PsiParser {
     Marker marker_ = enter_section_(builder_, level_, _NONE_, null);
     result_ = consumeToken(builder_, ERL_QMARK);
     pinned_ = result_; // pin = 1
-    result_ = result_ && macros_name(builder_, level_ + 1);
+    result_ = result_ && report_error_(builder_, macros_name(builder_, level_ + 1));
+    result_ = pinned_ && macros_2(builder_, level_ + 1) && result_;
     exit_section_(builder_, level_, marker_, ERL_MACROS, result_, pinned_, null);
     return result_ || pinned_;
+  }
+
+  // macro_call_argument_list?
+  private static boolean macros_2(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "macros_2")) return false;
+    macro_call_argument_list(builder_, level_ + 1);
+    return true;
   }
 
   /* ********************************************************** */
@@ -3186,98 +3258,13 @@ public class ErlangParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // expression ((',' | ';' | '->') expression)*
+  // <<consumeMacroBody>>
   public static boolean macros_body(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "macros_body")) return false;
     boolean result_;
-    boolean pinned_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<macros body>");
-    result_ = expression(builder_, level_ + 1, -1);
-    pinned_ = result_; // pin = 1
-    result_ = result_ && macros_body_1(builder_, level_ + 1);
-    exit_section_(builder_, level_, marker_, ERL_MACROS_BODY, result_, pinned_, null);
-    return result_ || pinned_;
-  }
-
-  // ((',' | ';' | '->') expression)*
-  private static boolean macros_body_1(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "macros_body_1")) return false;
-    int pos_ = current_position_(builder_);
-    while (true) {
-      if (!macros_body_1_0(builder_, level_ + 1)) break;
-      if (!empty_element_parsed_guard_(builder_, "macros_body_1", pos_)) break;
-      pos_ = current_position_(builder_);
-    }
-    return true;
-  }
-
-  // (',' | ';' | '->') expression
-  private static boolean macros_body_1_0(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "macros_body_1_0")) return false;
-    boolean result_;
-    boolean pinned_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, null);
-    result_ = macros_body_1_0_0(builder_, level_ + 1);
-    pinned_ = result_; // pin = 1
-    result_ = result_ && expression(builder_, level_ + 1, -1);
-    exit_section_(builder_, level_, marker_, null, result_, pinned_, null);
-    return result_ || pinned_;
-  }
-
-  // ',' | ';' | '->'
-  private static boolean macros_body_1_0_0(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "macros_body_1_0_0")) return false;
-    boolean result_;
-    Marker marker_ = enter_section_(builder_);
-    result_ = consumeToken(builder_, ERL_COMMA);
-    if (!result_) result_ = consumeToken(builder_, ERL_SEMI);
-    if (!result_) result_ = consumeToken(builder_, ERL_ARROW);
-    exit_section_(builder_, marker_, null, result_);
-    return result_;
-  }
-
-  /* ********************************************************** */
-  // &('?') generic_function_call_expression
-  public static boolean macros_call(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "macros_call")) return false;
-    boolean result_;
-    boolean pinned_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<macros call>");
-    result_ = macros_call_0(builder_, level_ + 1);
-    pinned_ = result_; // pin = 1
-    result_ = result_ && generic_function_call_expression(builder_, level_ + 1);
-    exit_section_(builder_, level_, marker_, ERL_MACROS_CALL, result_, pinned_, macros_call_recover_parser_);
-    return result_ || pinned_;
-  }
-
-  // &('?')
-  private static boolean macros_call_0(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "macros_call_0")) return false;
-    boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _AND_, null);
-    result_ = macros_call_0_0(builder_, level_ + 1);
-    exit_section_(builder_, level_, marker_, null, result_, false, null);
-    return result_;
-  }
-
-  // ('?')
-  private static boolean macros_call_0_0(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "macros_call_0_0")) return false;
-    boolean result_;
-    Marker marker_ = enter_section_(builder_);
-    result_ = consumeToken(builder_, ERL_QMARK);
-    exit_section_(builder_, marker_, null, result_);
-    return result_;
-  }
-
-  /* ********************************************************** */
-  // !'.'
-  static boolean macros_call_recover(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "macros_call_recover")) return false;
-    boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NOT_, null);
-    result_ = !consumeToken(builder_, ERL_DOT);
-    exit_section_(builder_, level_, marker_, null, result_, false, null);
+    result_ = consumeMacroBody(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, ERL_MACROS_BODY, result_, false, null);
     return result_;
   }
 
@@ -4026,7 +4013,7 @@ public class ErlangParser implements PsiParser {
     if (!recursion_guard_(builder_, level_, "record_field")) return false;
     boolean result_;
     boolean pinned_;
-    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, "<record field>");
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<record field>");
     result_ = record_field_0(builder_, level_ + 1);
     pinned_ = result_; // pin = 1
     result_ = result_ && report_error_(builder_, consumeToken(builder_, ERL_OP_EQ));
@@ -5609,57 +5596,71 @@ public class ErlangParser implements PsiParser {
     if (!recursion_guard_(builder_, level_, "expression_0")) return false;
     boolean result_ = true;
     while (true) {
-      Marker marker_ = enter_section_(builder_, level_, _LEFT_, null);
+      Marker left_marker_ = (Marker) builder_.getLatestDoneMarker();
+      if (!invalid_left_marker_guard_(builder_, left_marker_, "expression_0")) return false;
+      Marker marker_ = builder_.mark();
       if (priority_ < 1 && consumeTokenSmart(builder_, ERL_OP_EQ)) {
-        result_ = expression(builder_, level_, 0);
-        exit_section_(builder_, level_, marker_, ERL_ASSIGNMENT_EXPRESSION, result_, true, null);
+        result_ = report_error_(builder_, expression(builder_, level_, 0));
+        marker_.drop();
+        left_marker_.precede().done(ERL_ASSIGNMENT_EXPRESSION);
       }
       else if (priority_ < 2 && consumeTokenSmart(builder_, ERL_OP_EXL)) {
-        result_ = expression(builder_, level_, 1);
-        exit_section_(builder_, level_, marker_, ERL_SEND_EXPRESSION, result_, true, null);
+        result_ = report_error_(builder_, expression(builder_, level_, 1));
+        marker_.drop();
+        left_marker_.precede().done(ERL_SEND_EXPRESSION);
       }
       else if (priority_ < 3 && consumeTokenSmart(builder_, ERL_ORELSE)) {
-        result_ = expression(builder_, level_, 3);
-        exit_section_(builder_, level_, marker_, ERL_ORELSE_EXPRESSION, result_, true, null);
+        result_ = report_error_(builder_, expression(builder_, level_, 3));
+        marker_.drop();
+        left_marker_.precede().done(ERL_ORELSE_EXPRESSION);
       }
       else if (priority_ < 4 && consumeTokenSmart(builder_, ERL_ANDALSO)) {
-        result_ = expression(builder_, level_, 4);
-        exit_section_(builder_, level_, marker_, ERL_ANDALSO_EXPRESSION, result_, true, null);
+        result_ = report_error_(builder_, expression(builder_, level_, 4));
+        marker_.drop();
+        left_marker_.precede().done(ERL_ANDALSO_EXPRESSION);
       }
       else if (priority_ < 5 && comp_op(builder_, level_ + 1)) {
-        result_ = expression(builder_, level_, 5);
-        exit_section_(builder_, level_, marker_, ERL_COMP_OP_EXPRESSION, result_, true, null);
+        result_ = report_error_(builder_, expression(builder_, level_, 5));
+        marker_.drop();
+        left_marker_.precede().done(ERL_COMP_OP_EXPRESSION);
       }
       else if (priority_ < 6 && list_op(builder_, level_ + 1)) {
-        result_ = expression(builder_, level_, 5);
-        exit_section_(builder_, level_, marker_, ERL_LIST_OP_EXPRESSION, result_, true, null);
+        result_ = report_error_(builder_, expression(builder_, level_, 5));
+        marker_.drop();
+        left_marker_.precede().done(ERL_LIST_OP_EXPRESSION);
       }
       else if (priority_ < 7 && add_op(builder_, level_ + 1)) {
-        result_ = expression(builder_, level_, 7);
-        exit_section_(builder_, level_, marker_, ERL_ADDITIVE_EXPRESSION, result_, true, null);
+        result_ = report_error_(builder_, expression(builder_, level_, 7));
+        marker_.drop();
+        left_marker_.precede().done(ERL_ADDITIVE_EXPRESSION);
       }
       else if (priority_ < 8 && multiplicative_expression_0(builder_, level_ + 1)) {
-        result_ = expression(builder_, level_, 8);
-        exit_section_(builder_, level_, marker_, ERL_MULTIPLICATIVE_EXPRESSION, result_, true, null);
+        result_ = report_error_(builder_, expression(builder_, level_, 8));
+        marker_.drop();
+        left_marker_.precede().done(ERL_MULTIPLICATIVE_EXPRESSION);
       }
       else if (priority_ < 10 && consumeTokenSmart(builder_, ERL_COLON)) {
-        result_ = expression(builder_, level_, 10);
-        exit_section_(builder_, level_, marker_, ERL_COLON_QUALIFIED_EXPRESSION, result_, true, null);
+        result_ = report_error_(builder_, expression(builder_, level_, 10));
+        marker_.drop();
+        left_marker_.precede().done(ERL_COLON_QUALIFIED_EXPRESSION);
       }
       else if (priority_ < 11 && anonymous_call_expression_0(builder_, level_ + 1)) {
         result_ = true;
-        exit_section_(builder_, level_, marker_, ERL_ANONYMOUS_CALL_EXPRESSION, result_, true, null);
+        marker_.drop();
+        left_marker_.precede().done(ERL_ANONYMOUS_CALL_EXPRESSION);
       }
       else if (priority_ < 11 && record_tail(builder_, level_ + 1)) {
         result_ = true;
-        exit_section_(builder_, level_, marker_, ERL_RECORD_EXPRESSION, result_, true, null);
+        marker_.drop();
+        left_marker_.precede().done(ERL_RECORD_EXPRESSION);
       }
       else if (priority_ < 11 && map_tuple(builder_, level_ + 1)) {
         result_ = true;
-        exit_section_(builder_, level_, marker_, ERL_MAP_EXPRESSION, result_, true, null);
+        marker_.drop();
+        left_marker_.precede().done(ERL_MAP_EXPRESSION);
       }
       else {
-        exit_section_(builder_, level_, marker_, null, false, false, null);
+        exit_section_(builder_, marker_, null, false);
         break;
       }
     }
@@ -5990,14 +5991,14 @@ public class ErlangParser implements PsiParser {
       return guard(builder_, level_ + 1);
     }
   };
+  final static Parser macro_form_recover_parser_ = new Parser() {
+    public boolean parse(PsiBuilder builder_, int level_) {
+      return macro_form_recover(builder_, level_ + 1);
+    }
+  };
   final static Parser macros_body_parser_ = new Parser() {
     public boolean parse(PsiBuilder builder_, int level_) {
       return macros_body(builder_, level_ + 1);
-    }
-  };
-  final static Parser macros_call_recover_parser_ = new Parser() {
-    public boolean parse(PsiBuilder builder_, int level_) {
-      return macros_call_recover(builder_, level_ + 1);
     }
   };
   final static Parser try_argument_definition_parser_ = new Parser() {

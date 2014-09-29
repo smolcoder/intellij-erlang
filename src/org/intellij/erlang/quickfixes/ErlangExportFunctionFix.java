@@ -38,7 +38,8 @@ public class ErlangExportFunctionFix extends ErlangQuickFixBase {
 
   @Override
   public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
-    ErlangFunction function = PsiTreeUtil.getParentOfType(descriptor.getPsiElement(), ErlangFunction.class);
+    PsiElement functionNameElement = getProblemElementMacroAware(descriptor);
+    ErlangFunction function = PsiTreeUtil.getParentOfType(functionNameElement, ErlangFunction.class);
 
     if (function != null) {
       processFunction(project, function);

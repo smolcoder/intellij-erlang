@@ -292,6 +292,14 @@ public class ErlangVisitor extends PsiElementVisitor {
     visitFakeBinaryExpression(o);
   }
 
+  public void visitMacroCallArgumentList(@NotNull ErlangMacroCallArgumentList o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitMacroForm(@NotNull ErlangMacroForm o) {
+    visitCompositeElement(o);
+  }
+
   public void visitMacros(@NotNull ErlangMacros o) {
     visitCompositeElement(o);
   }
@@ -301,10 +309,6 @@ public class ErlangVisitor extends PsiElementVisitor {
   }
 
   public void visitMacrosBody(@NotNull ErlangMacrosBody o) {
-    visitCompositeElement(o);
-  }
-
-  public void visitMacrosCall(@NotNull ErlangMacrosCall o) {
     visitCompositeElement(o);
   }
 

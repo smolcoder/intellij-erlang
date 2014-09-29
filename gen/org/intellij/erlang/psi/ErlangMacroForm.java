@@ -5,9 +5,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface ErlangMacrosCall extends ErlangCompositeElement {
+public interface ErlangMacroForm extends ErlangCompositeElement {
 
   @Nullable
-  ErlangGenericFunctionCallExpression getGenericFunctionCallExpression();
+  ErlangMacros getMacros();
 
 }

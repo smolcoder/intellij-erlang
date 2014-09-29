@@ -44,6 +44,8 @@ import com.intellij.psi.formatter.FormatterUtil;
 import com.intellij.psi.impl.ResolveScopeManager;
 import com.intellij.psi.impl.source.resolve.reference.ReferenceProvidersRegistry;
 import com.intellij.psi.impl.source.resolve.reference.impl.PsiMultiReference;
+import com.intellij.psi.impl.source.tree.ForeignLeafPsiElement;
+import com.intellij.psi.impl.source.tree.TreeUtil;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.LocalSearchScope;
@@ -52,13 +54,14 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.*;
 import com.intellij.util.containers.ContainerUtil;
-import org.intellij.erlang.*;
+import org.intellij.erlang.ErlangParserDefinition;
+import org.intellij.erlang.ErlangStringLiteralEscaper;
+import org.intellij.erlang.ErlangTypes;
 import org.intellij.erlang.bif.ErlangBifDescriptor;
 import org.intellij.erlang.bif.ErlangBifTable;
-import org.intellij.erlang.context.ErlangPathResolver;
 import org.intellij.erlang.completion.ErlangCompletionContributor;
+import org.intellij.erlang.context.ErlangPathResolver;
 import org.intellij.erlang.icons.ErlangIcons;
-import org.intellij.erlang.index.ErlangApplicationIndex;
 import org.intellij.erlang.index.ErlangModuleIndex;
 import org.intellij.erlang.parser.ErlangParserUtil;
 import org.intellij.erlang.psi.*;
@@ -182,55 +185,11 @@ public class ErlangPsiImplUtil {
     if (resolve instanceof ErlangRecordDefinition) {
       ErlangTypedRecordFields typedRecordFields = ((ErlangRecordDefinition) resolve).getTypedRecordFields();
       if (typedRecordFields != null) {
-        for (ErlangTypedExpr e : typedRecordFields.getTypedExprList()) {
-          ErlangMacros macros = e.getQAtom().getMacros();
-          if (macros == null) {
-            result.add(e);
-          }
-          else {
-            processRecordFields(macros, atoms);
-          }
-        }
-        for (ErlangGenericFunctionCallExpression gc : typedRecordFields.getGenericFunctionCallExpressionList()) {
-          ErlangQAtom qAtom = ContainerUtil.getFirstItem(gc.getQAtomList());
-          ErlangMacros macros = qAtom == null ? null : qAtom.getMacros();
-          if (macros != null) {
-            processRecordFields(macros, atoms);
-          }
-        }
+        result.addAll(typedRecordFields.getTypedExprList());
       }
     }
 
     return Pair.create(result, atoms);
-  }
-
-   // for #149: Nitrogen support
-  private static void processRecordFields(@NotNull ErlangMacros macros, @NotNull List<ErlangQAtom> atoms) {
-    PsiReference psiReference = macros.getReference();
-    PsiElement macrosDefinition = psiReference != null ? psiReference.resolve() : null;
-    if (macrosDefinition instanceof ErlangMacrosDefinition) {
-      ErlangMacrosBody macrosBody = ((ErlangMacrosDefinition) macrosDefinition).getMacrosBody();
-      List<ErlangExpression> expressionList = macrosBody != null ? macrosBody.getExpressionList() : ContainerUtil.<ErlangExpression>emptyList();
-      for (ErlangExpression ee : expressionList) {
-        if (ee instanceof ErlangMaxExpression) {
-          ErlangQAtom qAtom = ((ErlangMaxExpression) ee).getQAtom();
-          ContainerUtil.addIfNotNull(atoms, qAtom);
-        }
-        else if (ee instanceof ErlangAssignmentExpression) {
-          ErlangExpression left = ((ErlangAssignmentExpression) ee).getLeft();
-          if (left instanceof ErlangMaxExpression) {
-            ErlangQAtom qAtom = ((ErlangMaxExpression) left).getQAtom();
-            ContainerUtil.addIfNotNull(atoms, qAtom);
-          }
-        }
-        else if (ee instanceof ErlangFunctionCallExpression) {
-          ErlangMacros m = ((ErlangFunctionCallExpression) ee).getQAtom().getMacros();
-          if (m != null) {
-            processRecordFields(m, atoms);
-          }
-        }
-      }
-    }
   }
 
   @Nullable
@@ -368,7 +327,18 @@ public class ErlangPsiImplUtil {
   public static PsiReference getReference(@NotNull ErlangMacros o) {
     ErlangMacrosName macrosName = o.getMacrosName();
     if (macrosName == null) return null;
-    return new ErlangMacrosReferenceImpl<ErlangMacrosName>(macrosName);
+    ErlangMacroCallArgumentList argumentList = o.getMacroCallArgumentList();
+    int arity = argumentList == null ? -1 : argumentList.getArgumentList().getExpressionList().size();
+    return new ErlangMacrosReferenceImpl<ErlangMacrosName>(macrosName, arity);
+  }
+
+  @NotNull
+  public static String getMacroName(ErlangMacrosName macroNameElement) {
+    PsiElement atom = macroNameElement.getAtom();
+    if (atom != null) return atom.getText();
+    PsiElement var = macroNameElement.getVar();
+    if (var != null) return var.getText();
+    return macroNameElement.getText();
   }
 
   @Nullable
@@ -583,7 +553,7 @@ public class ErlangPsiImplUtil {
   @NotNull
   public static List<LookupElement> getMacrosLookupElements(@NotNull PsiFile containingFile) {
     if (containingFile instanceof ErlangFile) {
-      List<ErlangMacrosDefinition> concat = ContainerUtil.concat(((ErlangFile) containingFile).getMacroses(), getErlangMacrosFromIncludes((ErlangFile) containingFile, true, ""));
+      List<ErlangMacrosDefinition> concat = ContainerUtil.concat(((ErlangFile) containingFile).getMacroses(), getErlangMacrosFromIncludes((ErlangFile) containingFile, true, "", 0));
       List<LookupElement> fromFile = ContainerUtil.map(
         concat,
         new Function<ErlangMacrosDefinition, LookupElement>() {
@@ -1026,11 +996,12 @@ public class ErlangPsiImplUtil {
   @NotNull
   static List<ErlangMacrosDefinition> getErlangMacrosFromIncludes(@NotNull ErlangFile containingFile,
                                                                   boolean forCompletion,
-                                                                  @NotNull String name) {
+                                                                  @NotNull String name,
+                                                                  int arity) {
     List<ErlangMacrosDefinition> fromIncludes = new ArrayList<ErlangMacrosDefinition>();
     for (ErlangFile file : getIncludedFiles(containingFile)) {
       if (!forCompletion) {
-        ContainerUtil.addIfNotNull(fromIncludes, file.getMacros(name));
+        ContainerUtil.addIfNotNull(fromIncludes, file.getMacros(name, arity));
       }
       else {
         fromIncludes.addAll(file.getMacroses());
@@ -1133,6 +1104,11 @@ public class ErlangPsiImplUtil {
       setName(macrosName, newName);
     }
     return o;
+  }
+
+  public static int getArity(ErlangMacrosDefinition macrosDefinition) {
+    ErlangArgumentDefinitionList argumentDefinitionList = macrosDefinition.getArgumentDefinitionList();
+    return argumentDefinitionList == null ? -1 : argumentDefinitionList.getArgumentDefinitionList().size();
   }
 
   public static void setName(@NotNull ErlangMacrosName macroName, @NotNull String newName) {
@@ -1272,7 +1248,8 @@ public class ErlangPsiImplUtil {
   @NotNull
   public static String createFunctionClausePresentation(@Nullable ErlangFunctionClause clause) {
     if (clause == null) return "";
-    return clause.getQAtom().getText() + "/" + calculateFunctionClauseArity(clause);
+    PsiElement atom = clause.getQAtom().getAtom();
+    return (atom != null ? atom.getText() : clause.getQAtom().getText()) + "/" + calculateFunctionClauseArity(clause);
   }
 
   @NotNull
@@ -1570,6 +1547,10 @@ public class ErlangPsiImplUtil {
     return new ErlangFunctionReferenceImpl<ErlangQAtom>(atom, module, arity);
   }
 
+  public static boolean startsWithForeignLeaf(PsiElement e) {
+    return TreeUtil.findFirstLeaf(e.getNode()) instanceof ForeignLeafPsiElement;
+  }
+
   public static boolean isWhitespaceOrComment(@NotNull PsiElement element) {
     return isWhitespaceOrComment(element.getNode());
   }
@@ -1582,6 +1563,13 @@ public class ErlangPsiImplUtil {
 
   public static boolean is(@Nullable PsiElement element, IElementType type) {
     return element != null && element.getNode().getElementType() == type;
+  }
+
+  @NotNull
+  public static ErlangArgumentList getArgumentList(ErlangMacroCallArgumentList erlangMacroCallArgumentList) {
+    ErlangArgumentList argumentsList = PsiTreeUtil.getChildOfType(erlangMacroCallArgumentList, ErlangArgumentList.class);
+    assert argumentsList != null;
+    return argumentsList;
   }
 
   @NotNull
