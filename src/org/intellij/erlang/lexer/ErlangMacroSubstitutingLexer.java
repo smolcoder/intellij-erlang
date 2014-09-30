@@ -95,20 +95,10 @@ public class ErlangMacroSubstitutingLexer extends LookAheadLexer {
     ErlangMacroBuilder macroBuilder = new ErlangMacroBuilder();
 
     //macro name and arguments list
-    boolean macroNameIsQuoted = lexer.getTokenType() == ErlangTypes.ERL_SINGLE_QUOTE;
-    if (macroNameIsQuoted) {
-      addTokenFrom(lexer);
-      if (lexer.getTokenType() != ErlangTypes.ERL_ATOM_NAME) return;
-      macroBuilder.setName(lexer.getTokenText());
-      addTokenFrom(lexer);
-      if (lexer.getTokenType() != ErlangTypes.ERL_SINGLE_QUOTE) return;
-      addTokenAndWhitespaceFrom(lexer);
-    }
-    else {
-      if (lexer.getTokenType() != ErlangTypes.ERL_ATOM_NAME && lexer.getTokenType() != ErlangTypes.ERL_VAR) return;
-      macroBuilder.setName(lexer.getTokenText());
-      addTokenAndWhitespaceFrom(lexer);
-    }
+    String macroName = consumeMacroNameAndAddTokens(lexer);
+    if (macroName == null) return;
+    macroBuilder.setName(macroName);
+
     if (lexer.getTokenType() == ErlangTypes.ERL_PAR_LEFT) {
       macroBuilder.setHasParameters(true);
       addTokenAndWhitespaceFrom(lexer);
@@ -174,7 +164,31 @@ public class ErlangMacroSubstitutingLexer extends LookAheadLexer {
   }
 
   private void undefLookAhead(Lexer lexer) {
-    //TODO implement
+    if (lexer.getTokenType() != ErlangTypes.ERL_PAR_LEFT) return;
+    addTokenAndWhitespaceFrom(lexer);
+    String macroName = consumeMacroNameAndAddTokens(lexer);
+    if (macroName != null) {
+      myMacroContext.undefineMacro(macroName);
+    }
+  }
+
+  @Nullable
+  private String consumeMacroNameAndAddTokens(Lexer lexer) {
+    String macroName;
+    boolean macroNameIsQuoted = lexer.getTokenType() == ErlangTypes.ERL_SINGLE_QUOTE;
+    if (macroNameIsQuoted) {
+      addTokenFrom(lexer);
+      if (lexer.getTokenType() != ErlangTypes.ERL_ATOM_NAME) return null;
+      macroName = lexer.getTokenText();
+      addTokenFrom(lexer);
+      if (lexer.getTokenType() != ErlangTypes.ERL_SINGLE_QUOTE) return null;
+    }
+    else {
+      if (lexer.getTokenType() != ErlangTypes.ERL_ATOM_NAME && lexer.getTokenType() != ErlangTypes.ERL_VAR) return null;
+      macroName = lexer.getTokenText();
+    }
+    addTokenAndWhitespaceFrom(lexer); // eat up the a single quote, atom_name or var
+    return macroName;
   }
 
   private void addAllTokensFrom(Lexer lexer) {
@@ -233,10 +247,10 @@ public class ErlangMacroSubstitutingLexer extends LookAheadLexer {
           if (myMacroCallParsingState == MacroCallParsingState.MACRO_NAME) {
             processMacroCall();
           }
-          else {
-            if (myMacroCallParsingState != MacroCallParsingState.QMARK) {
-              resetMacroCallParsing();
-            }
+          else if (myMacroCallParsingState != MacroCallParsingState.QMARK) {
+            resetMacroCallParsing();
+          }
+          if (lexer == myLexersStack.peek()) {
             myLexersStack.pop();
             continue;
           }
