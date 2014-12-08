@@ -79,6 +79,8 @@ public interface ErlangFile extends PsiFile {
 
   boolean isExported(@NotNull String signature);
 
+  boolean isImported(@NotNull String signature);
+
   boolean isExportedAll();
 
   @NotNull

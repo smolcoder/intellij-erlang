@@ -138,6 +138,19 @@ public class ErlangFileImpl extends PsiFileBase implements ErlangFile, PsiNameId
         return Result.create(calcIncludes(), ErlangFileImpl.this);
       }
     }, false);
+
+//  private CachedValue<List<String>> myImportedSignatures =
+//    CachedValuesManager.getManager(getProject()).createCachedValue(new CachedValueProvider<List<String>>() {
+//      @Override
+//      public Result<List<String>> compute() {
+//        return Result.create(ContainerUtil.map(getImportedFunctions(), new Function<ErlangImportFunction, String>() {
+//          @Override
+//          public String fun(ErlangImportFunction erlangImportFunction) {
+//            return erlangImportFunction.getText();
+//          }
+//        }), ErlangFileImpl.this);
+//      }
+//    }, false);
   private CachedValue<List<ErlangIncludeLib>> myIncludeLibValue =
     CachedValuesManager.getManager(getProject()).createCachedValue(new CachedValueProvider<List<ErlangIncludeLib>>() {
       @Override
@@ -266,6 +279,14 @@ public class ErlangFileImpl extends PsiFileBase implements ErlangFile, PsiNameId
   public boolean isExported(@NotNull String signature) {
     if (isExportedAll()) return true;
     return myExportedFunctionsSignatures.getValue().contains(signature);
+  }
+
+  @Override
+  public boolean isImported(@NotNull String signature) {
+    for (ErlangImportFunction f : getImportedFunctions()) {
+      if (f.getText().equals(signature)) return true;
+    }
+    return false;
   }
 
   @NotNull
