@@ -20,6 +20,7 @@ import com.intellij.openapi.util.Condition;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.MultiMap;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -458,6 +459,16 @@ public final class ErlangBifTable {
       }
     }
     return bifDescriptors;
+  }
+
+  @Nullable
+  public static ErlangBifDescriptor getBif(@NotNull String moduleName, @NotNull String functionName, int arity) {
+    for (ErlangBifDescriptor bifDescriptor : getBifs(moduleName, functionName)) {
+      if (arity == bifDescriptor.getArity()) {
+        return bifDescriptor;
+      }
+    }
+    return null;
   }
 
 
