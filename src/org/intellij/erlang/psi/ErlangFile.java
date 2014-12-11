@@ -81,7 +81,11 @@ public interface ErlangFile extends PsiFile {
 
   boolean isImported(@NotNull String signature);
 
+  boolean isNoAutoImport(@NotNull String name, int arity);
+
   boolean isExportedAll();
+
+  boolean isNoAutoImportAll();
 
   @NotNull
   ArrayList<ErlangImportFunction> getImportedFunctions();

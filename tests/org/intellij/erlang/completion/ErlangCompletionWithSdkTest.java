@@ -33,8 +33,12 @@ public class ErlangCompletionWithSdkTest extends ErlangCompletionTestBase {
     };
   }  
 
-  public void testNoBifDuplicates() throws Throwable {
-    doCheckResult("bar() ->ecrc<caret>", "bar() ->erlang:crc32(<caret>)");
+  public void testNoBifDuplicates1() throws Throwable {
+    doCheckResult("bar() ->crc<caret>", "bar() ->erlang:crc32(<caret>)");
+  }
+
+  public void testNoBifDuplicates2() throws Throwable {
+    doCheckResult("bar() ->eras<caret>", "bar() ->erase(<caret>)");
   }
 
   public void test353() throws Throwable {

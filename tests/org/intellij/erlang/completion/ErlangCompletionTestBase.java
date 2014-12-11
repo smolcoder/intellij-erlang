@@ -83,7 +83,7 @@ abstract public class ErlangCompletionTestBase extends ErlangLightPlatformCodeIn
   protected void doTestVariantsInner(CompletionType type, int count, CheckType checkType, String... variants) throws Throwable {
     myFixture.complete(type, count);
     List<String> stringList = myFixture.getLookupElementStrings();
-
+    System.out.println(stringList);
     assertNotNull(
       "\nPossibly the single variant has been completed.\n" +
       "File after:\n" +

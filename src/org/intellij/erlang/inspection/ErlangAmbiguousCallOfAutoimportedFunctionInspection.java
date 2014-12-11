@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 public class ErlangAmbiguousCallOfAutoimportedFunctionInspection extends ErlangInspectionBase {
   @Override
   protected boolean canRunOn(@NotNull ErlangFile file) {
+    if (file.isNoAutoImportAll()) return false;
     ErlangSdkRelease release = ErlangSdkType.getRelease(file);
     return release == null || release.isNewerThan(ErlangSdkRelease.V_R14A);
   }
@@ -49,7 +50,8 @@ public class ErlangAmbiguousCallOfAutoimportedFunctionInspection extends ErlangI
         ErlangBifDescriptor bifDescriptor = ErlangBifTable.getBif("erlang", name, arity);
         if (((ErlangFile)o.getContainingFile()).getFunction(name, arity) == null
           || bifDescriptor == null
-          || !bifDescriptor.isAutoImported())
+          || !bifDescriptor.isAutoImported()
+          || ((ErlangFile)o.getContainingFile()).isNoAutoImport(name, arity))
           return;
         holder.registerProblem(o.getNameIdentifier(),
           "Ambiguous call of overridden pre R14 auto-imported BIF " + "'" + r.getSignature() + "'",
