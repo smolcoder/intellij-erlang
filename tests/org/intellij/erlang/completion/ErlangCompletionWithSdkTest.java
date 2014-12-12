@@ -41,8 +41,29 @@ public class ErlangCompletionWithSdkTest extends ErlangCompletionTestBase {
     doCheckResult("bar() ->eras<caret>", "bar() ->erase(<caret>)");
   }
 
+  public void testCompleteFromSdk() throws Throwable {
+    doCheckResult("bar() ->abs<caret>", "bar() ->abs(<caret>)");
+  }
+
   public void test353() throws Throwable {
     doTestInclude("-record(aaa, {}). -record(bbb, {}). foo() -> is_record(1, <caret>)", "aaa", "bbb");
+  }
+
+  public void testSkdFunWithModule() throws Throwable {
+    doTestEquals("abs(D) -> D. foo() -> ab<caret>", "abs", "erlang:abs", "atom_to_binary");
+  }
+
+  public void testAutoImportCompletion1() throws Throwable {
+    doCheckResult("bar() ->erlabs<caret>", "bar() ->abs(<caret>)");
+  }
+
+  public void testAutoImportCompletion2() throws Throwable {
+    doCheckResult("bar() ->e:abs<caret>", "bar() ->erlang:abs(<caret>)");
+  }
+
+
+  public void testNoAutoImportCompletion() throws Throwable {
+    doCheckResult("bar() ->dt_get_<caret>", "bar() ->erlang:dt_get_tag()<caret>");
   }
 
   public void test353_2() throws Throwable {
