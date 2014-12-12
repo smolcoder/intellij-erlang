@@ -60,6 +60,7 @@ public class ErlangImportFixTest extends ErlangQuickFixTestBase {
   public void testOneImport()           { doTest(); }
   public void testDuplicateImport()     { doTest(); }
   public void testNoImport()            { doTest(); }
+  public void testNoImport2()           { doTest(); }
   public void testImportAutoimported()  { doTest(); }
   public void testAlreadyImported1()    { doTest(); }
   public void testAlreadyImported2()    { doTest(); }
