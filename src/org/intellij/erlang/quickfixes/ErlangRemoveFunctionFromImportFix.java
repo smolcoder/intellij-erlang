@@ -18,13 +18,12 @@ package org.intellij.erlang.quickfixes;
 
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.containers.ContainerUtil;
 import org.intellij.erlang.psi.*;
-import org.intellij.erlang.psi.impl.ErlangElementFactory;
 import org.intellij.erlang.psi.impl.ErlangPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -70,29 +69,46 @@ public class ErlangRemoveFunctionFromImportFix  extends ErlangQuickFixBase {
   }
 
   public static void removeFunctionFromImport(@NotNull Project project, @Nullable ErlangAttribute importAttribute, @NotNull String name) {
-    if (importAttribute == null) return;
-    ErlangImportDirective importDirective = importAttribute.getImportDirective();
-    if (importDirective == null || importDirective.getModuleRef() == null) return;
-    ErlangImportFunctions fns = importDirective.getImportFunctions();
+    ErlangImportDirective importDirective = importAttribute != null ? importAttribute.getImportDirective() : null;
+    ErlangImportFunctions fns = importDirective != null && importDirective.getModuleRef() != null ? importDirective.getImportFunctions() : null;
     List<ErlangImportFunction> functions = fns == null ? ContainerUtil.<ErlangImportFunction>emptyList() : fns.getImportFunctionList();
     if (functions.isEmpty()) return;
-    List<String> newImports = ContainerUtil.newArrayList();
-    // todo do not remove comments and save formatting
-    for (ErlangImportFunction f : functions) {
-      String presentation = ErlangPsiImplUtil.createFunctionPresentation(f);
-      if (presentation == null || !presentation.equals(name)) {
-        newImports.add(f.getText());
+
+    for (int i = 0; i < functions.size(); ++i) {
+      String presentation = ErlangPsiImplUtil.createFunctionPresentation(functions.get(i));
+      if (presentation != null && presentation.equals(name)) {
+        cutFunction(functions.get(i), i == functions.size() - 1);
       }
     }
-    if (newImports.isEmpty()) {
+    if (PsiTreeUtil.getChildOfAnyType(fns, ErlangImportFunction.class, PsiComment.class) == null) {
       if (importAttribute.getNextSibling() instanceof PsiWhiteSpace) {
         importAttribute.getNextSibling().delete();
       }
       importAttribute.delete();
     }
-    else {
-      String moduleName = importDirective.getModuleRef().getText();
-      importAttribute.replace(ErlangElementFactory.createImportFromText(project, moduleName, StringUtil.join(newImports, ", ")));
+  }
+
+  private static void cutFunction(@NotNull ErlangImportFunction function, boolean isLast) {
+    PsiElement sibling = function.getNextSibling();
+    while (sibling != null) {
+      if (",".equals(sibling.getText())) {
+        sibling.delete();
+        break;
+      }
+      if (!(sibling instanceof PsiComment || sibling instanceof PsiWhiteSpace)) break;
+      sibling = sibling.getNextSibling();
     }
+    if (isLast) {
+      sibling = function.getPrevSibling();
+      while (sibling != null) {
+        if (",".equals(sibling.getText())) {
+          sibling.delete();
+          break;
+        }
+        if (!(sibling instanceof PsiComment || sibling instanceof PsiWhiteSpace)) break;
+        sibling = sibling.getPrevSibling();
+      }
+    }
+    function.delete();
   }
 }
