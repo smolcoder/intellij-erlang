@@ -16,16 +16,15 @@
 
 package org.intellij.erlang.inspection;
 
-import com.intellij.codeInspection.LocalInspectionToolSession;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiReference;
 import org.intellij.erlang.bif.ErlangBifDescriptor;
 import org.intellij.erlang.bif.ErlangBifTable;
-import org.intellij.erlang.psi.*;
+import org.intellij.erlang.psi.ErlangFile;
+import org.intellij.erlang.psi.ErlangImportFunction;
 import org.intellij.erlang.psi.impl.ErlangFunctionReferenceImpl;
 import org.intellij.erlang.quickfixes.ErlangRemoveFunctionFromImportFix;
-import org.intellij.erlang.quickfixes.ErlangSpecifyModulePrefixFix;
 import org.intellij.erlang.sdk.ErlangSdkRelease;
 import org.intellij.erlang.sdk.ErlangSdkType;
 import org.jetbrains.annotations.NotNull;
@@ -37,23 +36,18 @@ public class ErlangImportDirectiveOverridesAutoimportedBifInspection extends Erl
     return release == null || release.isNewerThan(ErlangSdkRelease.V_R14A);
   }
 
-  @NotNull
-  protected ErlangVisitor buildErlangVisitor(@NotNull final ProblemsHolder holder, @NotNull LocalInspectionToolSession session) {
-    return new ErlangVisitor() {
-      @Override
-      public void visitImportFunction(@NotNull ErlangImportFunction o) {
-        PsiReference reference = o.getReference();
-        if (!(reference instanceof ErlangFunctionReferenceImpl) || reference.resolve() == null) return;
-        ErlangFunctionReferenceImpl r = (ErlangFunctionReferenceImpl) reference;
-        String name = r.getName();
-        int arity = r.getArity();
-        ErlangBifDescriptor bifDescriptor = ErlangBifTable.getBif("erlang", name, arity);
-        if (bifDescriptor == null || !bifDescriptor.isAutoImported())  return;
-        holder.registerProblem(o, "Import directive overrides pre R14 auto-imported BIF " + "'" + r.getSignature() + "'",
-          ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
-          new ErlangRemoveFunctionFromImportFix());
-      }
-    };
+  protected void checkFile(@NotNull ErlangFile file, @NotNull ProblemsHolder problemsHolder) {
+    for (ErlangImportFunction importFunction : file.getImportedFunctions()) {
+      PsiReference reference = importFunction.getReference();
+      if (!(reference instanceof ErlangFunctionReferenceImpl) || reference.resolve() == null) continue;
+      ErlangFunctionReferenceImpl r = (ErlangFunctionReferenceImpl) reference;
+      ErlangBifDescriptor bifDescriptor = ErlangBifTable.getBif("erlang", r.getName(), r.getArity());
+      if (bifDescriptor == null || !bifDescriptor.isAutoImported())  continue;
+      problemsHolder.registerProblem(importFunction,
+        "Import directive overrides pre R14 auto-imported BIF '" + r.getSignature() + "'",
+        ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
+        new ErlangRemoveFunctionFromImportFix());
+    }
   }
 
 }

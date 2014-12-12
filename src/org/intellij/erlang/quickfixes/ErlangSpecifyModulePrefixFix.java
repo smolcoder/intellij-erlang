@@ -41,7 +41,7 @@ public class ErlangSpecifyModulePrefixFix extends ErlangQuickFixBase {
     ErlangFunctionCallExpression callExpr = PsiTreeUtil.getParentOfType(
       descriptor.getPsiElement(), ErlangFunctionCallExpression.class);
     if (callExpr == null) return;
-    callExpr.replace(ErlangElementFactory.specifyModuleToFunctionCallExpression(project, myModuleName, callExpr));
+    callExpr.replace(ErlangElementFactory.createFunctionWithModuleCallExpression(project, myModuleName, callExpr.getText()));
   }
 
 }

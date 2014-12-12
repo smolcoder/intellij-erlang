@@ -16,51 +16,42 @@
 
 package org.intellij.erlang.inspection;
 
-import com.intellij.codeInspection.LocalInspectionToolSession;
-import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.psi.PsiFile;
-import com.intellij.util.Function;
+import com.intellij.codeInspection.*;
 import com.intellij.util.containers.ContainerUtil;
 import org.intellij.erlang.ErlangFileType;
 import org.intellij.erlang.psi.ErlangFile;
 import org.intellij.erlang.psi.ErlangFunction;
 import org.intellij.erlang.psi.ErlangImportFunction;
-import org.intellij.erlang.psi.ErlangVisitor;
 import org.intellij.erlang.psi.impl.ErlangPsiImplUtil;
 import org.intellij.erlang.quickfixes.ErlangRemoveFunctionFix;
 import org.intellij.erlang.quickfixes.ErlangRemoveFunctionFromImportFix;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.Set;
 
 public class ErlangDefiningImportedFunctionInspection extends ErlangInspectionBase {
   @Override
   protected boolean canRunOn(@NotNull ErlangFile file) {
-    return !file.getName().endsWith(ErlangFileType.HEADER.getDefaultExtension()) && !file.isExportedAll();
+    return file.getFileType() == ErlangFileType.MODULE && !file.isExportedAll();
   }
 
-  @NotNull
-  protected ErlangVisitor buildErlangVisitor(@NotNull final ProblemsHolder holder, @NotNull LocalInspectionToolSession session) {
-    return new ErlangVisitor() {
-      @Override
-      public void visitFile(final PsiFile file) {
-        Set<String> importedFunctionNames = ContainerUtil.newHashSet();
-        for (ErlangImportFunction f : ((ErlangFile) file).getImportedFunctions()) {
-          importedFunctionNames.add(ErlangPsiImplUtil.createFunctionPresentation(f));
-        }
-        for (ErlangFunction function : ((ErlangFile) file).getFunctions()) {
-          String fullName = ErlangPsiImplUtil.createFunctionPresentation(function);
-          if (importedFunctionNames.contains(fullName)) {
-            holder.registerProblem(function.getNameIdentifier(), "Defining imported function " + "'" + fullName + "'",
-              ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
-              new ErlangRemoveFunctionFix(),
-              new ErlangRemoveFunctionFromImportFix());
-          }
-        }
+  protected void checkFile(@NotNull ErlangFile file, @NotNull ProblemsHolder problemsHolder) {
+    Set<String> importedFunctionNames = ContainerUtil.newHashSet();
+    for (ErlangImportFunction f : file.getImportedFunctions()) {
+      importedFunctionNames.add(ErlangPsiImplUtil.createFunctionPresentation(f));
+    }
+    for (ErlangFunction function : file.getFunctions()) {
+      String fullName = ErlangPsiImplUtil.createFunctionPresentation(function);
+      if (importedFunctionNames.contains(fullName)) {
+        problemsHolder.registerProblem(InspectionManager.getInstance(file.getProject()).createProblemDescriptor(
+          function.getNameIdentifier(),
+          function.getFunctionClauseList().get(0).getArgumentDefinitionList().getOriginalElement(),
+          "Defining imported function '" + fullName + "'",
+          ProblemHighlightType.GENERIC_ERROR_OR_WARNING, true,
+          new ErlangRemoveFunctionFix(),
+          new ErlangRemoveFunctionFromImportFix()));
       }
-    };
+    }
   }
 
 }

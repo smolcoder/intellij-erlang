@@ -16,7 +16,11 @@
 
 package org.intellij.erlang.quickfixes;
 
+import com.intellij.codeInsight.intention.IntentionAction;
+import com.intellij.util.containers.ContainerUtil;
 import org.intellij.erlang.inspection.ErlangAmbiguousCallOfAutoimportedFunctionInspection;
+
+import java.util.List;
 
 public class ErlangAmbiguousCallTest extends ErlangQuickFixTestBase {
   @Override
@@ -33,7 +37,15 @@ public class ErlangAmbiguousCallTest extends ErlangQuickFixTestBase {
     return "testData/quickfixes/ambiguous/";
   }
 
-  public void testNoAmbiguous()   { assertNoIntention("Specify erlang module"); }
-  public void testNonAutoimport() { assertNoIntention("Specify erlang module"); }
+  private void doTestNoIntention(String prefix) {
+    String testName = getTestName(true);
+    myFixture.configureByFile(testName + ".erl");
+    List<IntentionAction> availableIntentions = myFixture.filterAvailableIntentions(prefix);
+    IntentionAction action = ContainerUtil.getFirstItem(availableIntentions);
+    assertNull(action);
+  }
+
+  public void testNoAmbiguous()   { doTestNoIntention("Specify erlang module"); }
+  public void testNonAutoimport() { doTestNoIntention("Specify erlang module"); }
   public void testCommon()        { doTest("Specify erlang module"); }
 }
