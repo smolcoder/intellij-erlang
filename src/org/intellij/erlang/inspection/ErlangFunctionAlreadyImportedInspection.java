@@ -16,52 +16,55 @@
 
 package org.intellij.erlang.inspection;
 
-import com.intellij.codeInspection.LocalInspectionToolSession;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.psi.PsiFile;
 import com.intellij.util.containers.ContainerUtil;
 import org.intellij.erlang.psi.*;
 import org.intellij.erlang.psi.impl.ErlangPsiImplUtil;
 import org.intellij.erlang.quickfixes.ErlangRemoveFunctionFromImportFix;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ErlangFunctionAlreadyImportedInspection extends ErlangInspectionBase {
 
-  @NotNull
-  protected ErlangVisitor buildErlangVisitor(@NotNull final ProblemsHolder holder, @NotNull LocalInspectionToolSession session) {
-    return new ErlangVisitor() {
-      @Override
-      public void visitFile(@NotNull PsiFile file) {
-        if (!(file instanceof ErlangFile)) return;
-        Map<String, String> alreadyImported = ContainerUtil.newHashMap();
-        for (ErlangAttribute attribute : ((ErlangFile)file).getAttributes()) {
-          ErlangImportFunctions importFunctions =
-            attribute.getImportDirective() != null ? attribute.getImportDirective().getImportFunctions() : null;
-          if (importFunctions == null) continue;
-          ErlangModuleRef moduleRef = attribute.getImportDirective().getModuleRef();
-          if (moduleRef == null) continue;
-          List<String> justImported = ContainerUtil.newArrayList();
-          for (ErlangImportFunction f : importFunctions.getImportFunctionList()) {
-            String functionPresentation = ErlangPsiImplUtil.createFunctionPresentation(f);
-            if (functionPresentation == null) continue;
-            if (alreadyImported.containsKey(functionPresentation)) {
-              holder.registerProblem(f, "Function '" + functionPresentation + "' already imported from '" +
-                  alreadyImported.get(functionPresentation) + "'",
-                ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
-                new ErlangRemoveFunctionFromImportFix(true));
-            }
-            justImported.add(functionPresentation);
-          }
-          for (String s : justImported) {
-            alreadyImported.put(s, moduleRef.getText());
-          }
-        }
+  protected void checkFile(@NotNull ErlangFile file, @NotNull ProblemsHolder problemsHolder) {
+    Map<String, String> alreadyImported = ContainerUtil.newHashMap();
+    for (ErlangAttribute attribute : file.getAttributes()) {
+      ErlangImportFunctions importFunctions =
+        attribute.getImportDirective() != null ? attribute.getImportDirective().getImportFunctions() : null;
+      if (importFunctions == null) continue;
+      ErlangModuleRef moduleRef = attribute.getImportDirective().getModuleRef();
+      if (moduleRef == null) continue;
+      processImportDirective(importFunctions, ErlangPsiImplUtil.getName(moduleRef.getQAtom()),
+        alreadyImported, problemsHolder);
+    }
+  }
+
+  private static void processImportDirective(@NotNull ErlangImportFunctions importFunctions, @NotNull String importFrom,
+                                      @NotNull Map<String, String> alreadyImported,
+                                      @NotNull ProblemsHolder problemsHolder) {
+    Set<String> justImported = ContainerUtil.newHashSet();
+    for (ErlangImportFunction f : importFunctions.getImportFunctionList()) {
+      String functionPresentation = ErlangPsiImplUtil.createFunctionPresentation(f);
+      if (functionPresentation == null) continue;
+      if (alreadyImported.containsKey(functionPresentation)) {
+        problemsHolder.registerProblem(f, "Function '" + functionPresentation + "' already imported from '" +
+            alreadyImported.get(functionPresentation) + "'",
+          ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
+          new ErlangRemoveFunctionFromImportFix(true));
       }
-    };
+      if (justImported.contains(functionPresentation)) {
+        problemsHolder.registerProblem(f, "Duplicate import of function '" + functionPresentation + "'",
+          ProblemHighlightType.WEAK_WARNING,
+          new ErlangRemoveFunctionFromImportFix(true));
+      }
+      justImported.add(functionPresentation);
+    }
+    for (String name : justImported) {
+      alreadyImported.put(name, importFrom);
+    }
   }
 
 }
