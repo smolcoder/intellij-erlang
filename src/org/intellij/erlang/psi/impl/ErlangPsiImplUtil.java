@@ -501,8 +501,7 @@ public class ErlangPsiImplUtil {
         if (withModule) {
           lookupElements.addAll(getAllExportedFunctionsWithModuleLookupElements(currentFile.getProject(), withArity, "erlang"));
         }
-
-        lookupElements.addAll(getErlangModuleLookupElements(currentFile, true));
+        addErlangModuleLookupElements(lookupElements, currentFile, true);
 
         for (ErlangImportFunction importFunction : currentFile.getImportedFunctions()) {
           lookupElements.add(createFunctionLookupElement(importFunction.getQAtom().getText(),
@@ -510,7 +509,7 @@ public class ErlangPsiImplUtil {
         }
 
         if (!withArity && (release == null || release.needBifCompletion("erlang"))) {
-          lookupElements.addAll(getErlangModuleLookupElements(currentFile, false));
+          addErlangModuleLookupElements(lookupElements, currentFile, false);
         }
         if (!withArity && (release == null || release.needBifCompletion(""))) {
           addBifs(lookupElements, ErlangBifTable.getAutoimportedBifs(""));
@@ -530,9 +529,8 @@ public class ErlangPsiImplUtil {
     }
   }
 
-  @NotNull
-  public static List<LookupElement> getErlangModuleLookupElements(@NotNull ErlangFile erlangFile, boolean useIndex) {
-    List<LookupElement> lookupElements = ContainerUtil.newArrayList();
+  public static void addErlangModuleLookupElements(@NotNull List<LookupElement> lookupElements,
+                                                   @NotNull ErlangFile erlangFile, boolean useIndex) {
     if (useIndex) {
       for (ErlangFunction f : getExternalFunctionForCompletionByModule(erlangFile.getProject(), "erlang")) {
         addBifLookup(erlangFile, lookupElements, ErlangBifTable.getBif("erlang", f.getName(), f.getArity()));
@@ -543,7 +541,6 @@ public class ErlangPsiImplUtil {
         addBifLookup(erlangFile, lookupElements, bif);
       }
     }
-    return lookupElements;
   }
 
   private static void addBifLookup(@NotNull ErlangFile erlangFile, @NotNull List<LookupElement> lookupElements,
@@ -613,12 +610,8 @@ public class ErlangPsiImplUtil {
   private static LookupElement createFunctionLookupElement(@NotNull String moduleName, @NotNull String name, int arity,
                                                            boolean withArity, int priority, boolean isFullName) {
     String fullName = moduleName + ":" + name;
-    LookupElementBuilder lookup;
-    if (isFullName) {
-      lookup = LookupElementBuilder.create(fullName + arity, fullName).withLookupString(name);
-    } else {
-      lookup = LookupElementBuilder.create(name + arity, name).withLookupString(fullName);
-    }
+    LookupElementBuilder lookup = LookupElementBuilder.create(
+      (isFullName ? fullName : name) + arity, name).withLookupString(fullName);
     return PrioritizedLookupElement.withPriority(
       lookup.withIcon(ErlangIcons.FUNCTION).withTailText("/" + arity)
         .withInsertHandler(getInsertHandler(arity, withArity)), priority);
@@ -626,79 +619,77 @@ public class ErlangPsiImplUtil {
 
   @Nullable
   private static InsertHandler<LookupElement> getInsertHandler(final int arity, boolean withArity) {
-    return withArity ?
-      new BasicInsertHandler<LookupElement>() {
-        @Override
-        public void handleInsert(@NotNull InsertionContext context, LookupElement item) {
-          Editor editor = context.getEditor();
-          Document document = editor.getDocument();
-          context.commitDocument();
-          PsiElement next = findNextToken(context);
-          ASTNode intNode = FormatterUtil.getNextNonWhitespaceSibling(next != null ? next.getNode() : null);
+    return withArity ? getBasicInsertHandler(arity) : getParenthesesInsertHandler(arity);
+  }
 
-          if (next != null && "/".equals(next.getText())) {
-            next.delete();
-          }
-          if (intNode != null && intNode.getElementType() == ErlangTypes.ERL_INTEGER) {
-            intNode.getPsi().delete();
-          }
-          PsiDocumentManager.getInstance(context.getProject()).doPostponedOperationsAndUnblockDocument(document);
-          document.insertString(context.getTailOffset(), "/" + arity);
-          editor.getCaretModel().moveToOffset(context.getTailOffset());
-        }
+  private static ParenthesesInsertHandler<LookupElement> getParenthesesInsertHandler(final int arity) {
+    return new ParenthesesInsertHandler<LookupElement>() {
+      @Override
+      protected boolean placeCaretInsideParentheses(InsertionContext context, LookupElement item) {
+        return arity > 0;
+      }
 
-        @Nullable
-        private PsiElement findNextToken(@NotNull InsertionContext context) {
-          PsiFile file = context.getFile();
-          PsiElement element = file.findElementAt(context.getTailOffset());
-          if (element instanceof PsiWhiteSpace) {
-            element = file.findElementAt(element.getTextRange().getEndOffset());
-          }
-          return element;
-        }
-
-      } :
-      new ParenthesesInsertHandler<LookupElement>() {
-        @Override
-        protected boolean placeCaretInsideParentheses(InsertionContext context, LookupElement item) {
-          return arity > 0;
-        }
-
-        private void insertErlangModulePrefix(InsertionContext context, LookupElement item) {
-          if (item.getPsiElement() instanceof ErlangFunction) {
-            ErlangFunction function = (ErlangFunction) item.getPsiElement();
-            ErlangModule module = ((ErlangFile) function.getContainingFile()).getModule();
-            if (module != null && "erlang".equals(module.getName())) {
-              ErlangFile currentFile = (ErlangFile) context.getFile();
-              boolean insertWithModulePrefix = false;
-              for (ErlangImportFunction ef : currentFile.getImportedFunctions()) {
-                ErlangFunctionReferenceImpl ref = (ErlangFunctionReferenceImpl) ef.getReference();
-                if (function.getName().equals(ref.getName()) && function.getArity() == ref.getArity()) {
-                  insertWithModulePrefix = true;
-                  break;
-                }
-              }
-              if (!insertWithModulePrefix) {
-                for(ErlangFunction f : currentFile.getFunctionsByName(function.getName())) {
-                  if (function.getArity() == f.getArity()) {
-                    insertWithModulePrefix = true;
-                    break;
-                  }
-                }
-              }
-              if (insertWithModulePrefix) {
-                context.getDocument().insertString(context.getStartOffset(), "erlang:");
+      private void insertErlangModulePrefix(InsertionContext context, LookupElement item) {
+        if (item.getPsiElement() instanceof ErlangFunction) {
+          ErlangFunction function = (ErlangFunction) item.getPsiElement();
+          ErlangFile currentFile = (ErlangFile) context.getFile();
+          if (currentFile.getModule() == null || !"erlang".equals(currentFile.getModule().getName())) return;
+          boolean insertWithModulePrefix = currentFile.getFunction(function.getName(), function.getArity()) != null;
+          if (!insertWithModulePrefix) {
+            for (ErlangImportFunction ef : currentFile.getImportedFunctions()) {
+              ErlangFunctionReferenceImpl ref = (ErlangFunctionReferenceImpl) ef.getReference();
+              if (function.getName().equals(ref.getName()) && function.getArity() == ref.getArity()) {
+                insertWithModulePrefix = true;
+                break;
               }
             }
           }
+          if (insertWithModulePrefix) {
+            context.getDocument().insertString(context.getStartOffset(), "erlang:");
+          }
         }
+      }
 
-        @Override
-        public void handleInsert(InsertionContext context, LookupElement item) {
-          insertErlangModulePrefix(context, item);
-          super.handleInsert(context, item);
+      @Override
+      public void handleInsert(InsertionContext context, LookupElement item) {
+        insertErlangModulePrefix(context, item);
+        super.handleInsert(context, item);
+      }
+    };
+  }
+
+  private static BasicInsertHandler<LookupElement> getBasicInsertHandler(final int arity) {
+    return new BasicInsertHandler<LookupElement>() {
+      @Override
+      public void handleInsert(@NotNull InsertionContext context, LookupElement item) {
+        Editor editor = context.getEditor();
+        Document document = editor.getDocument();
+        context.commitDocument();
+        PsiElement next = findNextToken(context);
+        ASTNode intNode = FormatterUtil.getNextNonWhitespaceSibling(next != null ? next.getNode() : null);
+
+        if (next != null && "/".equals(next.getText())) {
+          next.delete();
         }
-      };
+        if (intNode != null && intNode.getElementType() == ErlangTypes.ERL_INTEGER) {
+          intNode.getPsi().delete();
+        }
+        PsiDocumentManager.getInstance(context.getProject()).doPostponedOperationsAndUnblockDocument(document);
+        document.insertString(context.getTailOffset(), "/" + arity);
+        editor.getCaretModel().moveToOffset(context.getTailOffset());
+      }
+
+      @Nullable
+      private PsiElement findNextToken(@NotNull InsertionContext context) {
+        PsiFile file = context.getFile();
+        PsiElement element = file.findElementAt(context.getTailOffset());
+        if (element instanceof PsiWhiteSpace) {
+          element = file.findElementAt(element.getTextRange().getEndOffset());
+        }
+        return element;
+      }
+
+    };
   }
 
   @NotNull
@@ -1482,6 +1473,7 @@ public class ErlangPsiImplUtil {
   public static String createFunctionPresentation(@NotNull ErlangFunction function) {
     return function.getName() + "/" + function.getArity();
   }
+
   @NotNull
   public static String getQualifiedFunctionName(@NotNull ErlangFunction function) {
     PsiFile file = function.getContainingFile();
