@@ -21,7 +21,7 @@ import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.util.containers.ContainerUtil;
 import org.intellij.erlang.psi.*;
 import org.intellij.erlang.psi.impl.ErlangPsiImplUtil;
-import org.intellij.erlang.quickfixes.ErlangRemoveFunctionFromImportFix;
+import org.intellij.erlang.quickfixes.ErlangRemoveImportFunctionFromImportFix;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -53,12 +53,12 @@ public class ErlangFunctionAlreadyImportedInspection extends ErlangInspectionBas
         problemsHolder.registerProblem(f, "Function '" + functionPresentation + "' already imported from '" +
             alreadyImported.get(functionPresentation) + "'",
           ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
-          new ErlangRemoveFunctionFromImportFix(true));
+          new ErlangRemoveImportFunctionFromImportFix(true));
       }
       if (justImported.contains(functionPresentation)) {
         problemsHolder.registerProblem(f, "Duplicate import of function '" + functionPresentation + "'",
           ProblemHighlightType.WEAK_WARNING,
-          new ErlangRemoveFunctionFromImportFix(true));
+          new ErlangRemoveImportFunctionFromImportFix(true));
       }
       justImported.add(functionPresentation);
     }

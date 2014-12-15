@@ -23,6 +23,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.containers.ContainerUtil;
+import org.intellij.erlang.ErlangTypes;
 import org.intellij.erlang.psi.*;
 import org.intellij.erlang.psi.impl.ErlangPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -31,18 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class ErlangRemoveFunctionFromImportFix  extends ErlangQuickFixBase {
-  final boolean myOnlyCurrentImport;
-
-  public ErlangRemoveFunctionFromImportFix(boolean onlyCurrentImport) {
-    myOnlyCurrentImport = onlyCurrentImport;
-  }
-
-  public ErlangRemoveFunctionFromImportFix() {
-    this(false);
-  }
-
   @NotNull
-
   @Override
   public String getFamilyName() {
     return "Remove from import";
@@ -50,29 +40,19 @@ public class ErlangRemoveFunctionFromImportFix  extends ErlangQuickFixBase {
 
   @Override
   public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
-    PsiElement function = descriptor.getPsiElement() instanceof ErlangImportFunction
-      ? descriptor.getPsiElement()
-      : PsiTreeUtil.getParentOfType(descriptor.getPsiElement(), ErlangFunction.class);
-    if (function == null || !(function.getContainingFile() instanceof ErlangFile)) return;
-    String fullName = function instanceof ErlangFunction
-      ? ErlangPsiImplUtil.createFunctionPresentation((ErlangFunction) function)
-      : ErlangPsiImplUtil.createFunctionPresentation((ErlangImportFunction) function);
-    if (fullName == null) return;
-    if (myOnlyCurrentImport && function instanceof ErlangImportFunction) {
-      ErlangAttribute currentImportAttribute = PsiTreeUtil.getParentOfType(function, ErlangAttribute.class);
-      removeFunctionFromImport(project, currentImportAttribute, fullName);
-      return;
-    }
+    ErlangFunction function = PsiTreeUtil.getParentOfType(descriptor.getPsiElement(), ErlangFunction.class);
+    if (function == null) return;
+    String fullName = ErlangPsiImplUtil.createFunctionPresentation(function);
     for (ErlangImportFunction importFunction : ((ErlangFile)function.getContainingFile()).getImportedFunctions()) {
-      removeFunctionFromImport(project, PsiTreeUtil.getParentOfType(importFunction, ErlangAttribute.class), fullName);
+      removeFunctionFromImport(PsiTreeUtil.getParentOfType(importFunction, ErlangAttribute.class), fullName);
     }
   }
 
-  public static void removeFunctionFromImport(@NotNull Project project, @Nullable ErlangAttribute importAttribute, @NotNull String name) {
+  public static void removeFunctionFromImport(@Nullable ErlangAttribute importAttribute, @Nullable String name) {
     ErlangImportDirective importDirective = importAttribute != null ? importAttribute.getImportDirective() : null;
     ErlangImportFunctions fns = importDirective != null && importDirective.getModuleRef() != null ? importDirective.getImportFunctions() : null;
     List<ErlangImportFunction> functions = fns == null ? ContainerUtil.<ErlangImportFunction>emptyList() : fns.getImportFunctionList();
-    if (functions.isEmpty()) return;
+    if (name == null || functions.isEmpty()) return;
 
     for (int i = 0; i < functions.size(); ++i) {
       String presentation = ErlangPsiImplUtil.createFunctionPresentation(functions.get(i));
@@ -80,7 +60,9 @@ public class ErlangRemoveFunctionFromImportFix  extends ErlangQuickFixBase {
         cutFunction(functions.get(i), i == functions.size() - 1);
       }
     }
+    //noinspection unchecked
     if (PsiTreeUtil.getChildOfAnyType(fns, ErlangImportFunction.class, PsiComment.class) == null) {
+      //noinspection ConstantConditions
       if (importAttribute.getNextSibling() instanceof PsiWhiteSpace) {
         importAttribute.getNextSibling().delete();
       }
@@ -91,7 +73,7 @@ public class ErlangRemoveFunctionFromImportFix  extends ErlangQuickFixBase {
   private static void cutFunction(@NotNull ErlangImportFunction function, boolean isLast) {
     PsiElement sibling = function.getNextSibling();
     while (sibling != null) {
-      if (",".equals(sibling.getText())) {
+      if (sibling.getNode().getElementType() == ErlangTypes.ERL_COMMA) {
         sibling.delete();
         break;
       }
@@ -101,7 +83,7 @@ public class ErlangRemoveFunctionFromImportFix  extends ErlangQuickFixBase {
     if (isLast) {
       sibling = function.getPrevSibling();
       while (sibling != null) {
-        if (",".equals(sibling.getText())) {
+        if (sibling.getNode().getElementType() == ErlangTypes.ERL_COMMA) {
           sibling.delete();
           break;
         }
